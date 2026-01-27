@@ -125,9 +125,21 @@
       <!-- Processing -->
       <section id="processing" class="screen" aria-label="Processing" aria-live="polite">
         <h2>Processing your round…</h2>
-        <p>Creating your shareable clip</p>
+
+        <!-- Status line (JS updates this) -->
+        <p id="processing-status">Finalizing…</p>
+
+        <!-- Progress bar -->
+        <div class="progress" role="progressbar" aria-label="Upload progress" aria-valuemin="0" aria-valuemax="100">
+          <div id="processing-bar" class="bar" style="width:0%"></div>
+        </div>
+
+        <!-- Detail line (JS updates this) -->
+        <p id="processing-detail" class="muted">Preparing…</p>
+
         <div class="spinner" aria-hidden="true"></div>
       </section>
+
 
       <!-- Summary -->
       <section id="summary" class="screen" aria-labelledby="summary-title">

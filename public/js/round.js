@@ -2,6 +2,21 @@ import CameraManager from './camera.js';
 import PunchDetector from './detector.js';
 import { DAILY_TARGET_PUNCHES } from './config.js';
 
+function fakeMphFromSpeed(speed) {
+  // Tuned for MediaPipe wrist movement
+  const MIN_MPH = 8;    // slow punch
+  const MAX_MPH = 42;   // elite human punch
+  const SCALE = 18;     // feel-good multiplier
+
+  let mph = speed * SCALE;
+
+  // Soft floor + ceiling
+  mph = Math.max(mph, MIN_MPH);
+  mph = Math.min(mph, MAX_MPH);
+
+  return Math.round(mph);
+}
+
 class RoundManager {
   constructor() {
     this.camera = new CameraManager();
@@ -12,6 +27,23 @@ class RoundManager {
     this.timerInterval = null;
     this.deviceId = this.getOrCreateDeviceId();
   }
+
+  setProcessing(stepText, percent = null, detail = '') {
+    const statusEl = document.getElementById('processing-status');
+    const barEl = document.getElementById('processing-bar');
+    const detailEl = document.getElementById('processing-detail');
+    const progressWrap = document.querySelector('#processing .progress');
+  
+    if (statusEl) statusEl.textContent = stepText;
+    if (detailEl) detailEl.textContent = detail;
+  
+    if (barEl && percent !== null) {
+      const p = Math.max(0, Math.min(100, percent));
+      barEl.style.width = `${p}%`;
+      if (progressWrap) progressWrap.setAttribute('aria-valuenow', String(p));
+    }
+  }
+  
 
   getOrCreateDeviceId() {
     let id = localStorage.getItem('hityourday_device_id');
@@ -204,19 +236,29 @@ class RoundManager {
     
     // Calculate pace and top speed
     const pace = duration > 0 ? ((punches / duration) * 60).toFixed(1) : 0;
-    const topSpeedMph = this.detector.fastestPunch 
-      ? Math.round(this.detector.fastestPunch * 100) 
+    const topSpeedMph = this.detector.fastestPunch
+      ? fakeMphFromSpeed(this.detector.fastestPunch)
       : 0;
-  
-    // If still recording, wait for it to finish
-    if (this.recorder && this.recorder.state === 'recording') {
-      console.log('⏸️ Waiting for recording to finish...');
-      await this.stopRecording();
-    }
+
   
     // Show processing
     document.getElementById('round-active').style.display = 'none';
     document.getElementById('processing').style.display = 'block';
+
+    this.setProcessing('Finalizing…', 5, 'Stopping detection + saving stats');
+
+    if (this.recorder && this.recorder.state === 'recording') {
+      this.setProcessing(
+        'Finalizing clip…',
+        15,
+        'Wrapping up your 5-second video'
+      );
+  
+      await this.stopRecording();
+    }
+  
+    // Build video blob
+    this.setProcessing('Packaging…', 25, 'Preparing upload');
   
     // Get video if captured
     let videoBlob = null;
@@ -224,14 +266,30 @@ class RoundManager {
       videoBlob = new Blob(this.recordedChunks, { 
         type: this.recordedChunks[0]?.type || 'video/webm' 
       });
+
+      this.setProcessing(
+        'Packaging…',
+        35,
+        `Clip ready (${(videoBlob.size / 1024 / 1024).toFixed(1)}MB)`
+      );
+
       console.log('📹 Video captured:', (videoBlob.size / 1024 / 1024).toFixed(2), 'MB');
     } else {
       console.log('⚠️ No video captured (round < 5s or recording not started)');
+      this.setProcessing('Packaging…', 35, 'No clip captured this round');
     }
   
     try {
+      this.setProcessing('Uploading…', 40, 'Starting upload…');
+
       const round = await this.saveRound(punches, duration, pace, topSpeedMph, videoBlob);
+
+      this.setProcessing('Finishing…', 92, 'Updating streak…');
+
       await this.loadStreak();
+
+      this.setProcessing('Done…', 100, 'Loading summary…');
+
       this.showSummary(round);
     } catch (error) {
       console.error('Error saving round:', error);
@@ -260,29 +318,51 @@ class RoundManager {
     });
   }
 
-  async saveRound(punchCount, durationSeconds, pace, topSpeedMph, videoBlob) {
+  saveRound(punchCount, durationSeconds, pace, topSpeedMph, videoBlob) {
     const formData = new FormData();
     formData.append('deviceId', this.deviceId);
     formData.append('punchCount', punchCount);
     formData.append('durationSeconds', durationSeconds);
     formData.append('pace', pace);
     formData.append('topSpeedMph', topSpeedMph);
-
-    if (videoBlob) {
-      formData.append('video', videoBlob, 'round.webm');
-    }
-
-    const response = await fetch('/api/rounds', {
-      method: 'POST',
-      body: formData
+  
+    if (videoBlob) formData.append('video', videoBlob, 'round.webm');
+  
+    return new Promise((resolve, reject) => {
+      const xhr = new XMLHttpRequest();
+      xhr.open('POST', '/api/rounds');
+  
+      // Real upload progress
+      xhr.upload.onprogress = (evt) => {
+        if (!evt.lengthComputable) return;
+  
+        const pct = Math.round((evt.loaded / evt.total) * 100);
+  
+        // Map upload to 40% -> 90% so earlier steps feel real
+        const mapped = 40 + Math.round(pct * 0.5);
+  
+        const mbLoaded = (evt.loaded / 1024 / 1024).toFixed(1);
+        const mbTotal = (evt.total / 1024 / 1024).toFixed(1);
+  
+        this.setProcessing('Uploading…', mapped, `${mbLoaded}MB / ${mbTotal}MB`);
+      };
+  
+      xhr.onload = () => {
+        if (xhr.status < 200 || xhr.status >= 300) {
+          reject(new Error('Failed to save round'));
+          return;
+        }
+        try {
+          resolve(JSON.parse(xhr.responseText));
+        } catch {
+          reject(new Error('Bad server response'));
+        }
+      };
+  
+      xhr.onerror = () => reject(new Error('Network error'));
+      xhr.send(formData);
     });
-
-    if (!response.ok) {
-      throw new Error('Failed to save round');
-    }
-
-    return await response.json();
-  }
+  }  
 
   showSummary(round) {
     const punchCount = Number(round.punch_count ?? 0);
