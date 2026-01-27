@@ -6,6 +6,7 @@ import { fileURLToPath } from 'url';
 import roundsRouter from './routes/rounds.js';
 import streaksRouter from './routes/streaks.js';
 import usersRouter from './routes/users.js';
+import VideoProcessor from './utils/videoProcessor.js';
 
 dotenv.config();
 
@@ -14,6 +15,16 @@ const __dirname = path.dirname(__filename);
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+
+const videoProcessor = new VideoProcessor();
+
+// Run once on server boot
+videoProcessor.cleanupOldVideos(24).catch(console.error);
+
+// Run every hour
+setInterval(() => {
+  videoProcessor.cleanupOldVideos(24).catch(console.error);
+}, 60 * 60 * 1000);
 
 // Middleware
 app.use(cors());

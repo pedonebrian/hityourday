@@ -23,6 +23,32 @@ class VideoProcessor {
     }
   }
 
+  async cleanupOldVideos(hoursOld = 24) {
+    const files = fs.readdirSync(this.uploadsDir);
+    const now = Date.now();
+    const maxAgeMs = hoursOld * 60 * 60 * 1000;
+  
+    for (const file of files) {
+      // only clean what we create
+      if (!file.startsWith('final_')) continue;
+      if (!file.endsWith('.mp4')) continue;
+  
+      const filePath = path.join(this.uploadsDir, file);
+  
+      try {
+        const stats = fs.statSync(filePath);
+        const ageMs = now - stats.mtimeMs;
+  
+        if (ageMs > maxAgeMs) {
+          fs.unlinkSync(filePath);
+          console.log(`🧹 Deleted old upload: ${file}`);
+        }
+      } catch (e) {
+        console.warn(`Cleanup skipped for ${file}:`, e?.message || e);
+      }
+    }
+  }  
+
   // ✅ Get duration via ffprobe (reliable random)
   async getDurationSeconds(inputPath) {
     return new Promise((resolve) => {
