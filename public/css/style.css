@@ -1,712 +1,789 @@
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
-body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
-  background: #000;
-  color: #fff;
-  min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.skip-link {
-  position: absolute;
-  left: -999px;
-  top: 0;
-}
-.skip-link:focus {
-  left: 1rem;
-  top: 1rem;
-  z-index: 9999;
-}
-
-:focus-visible {
-  outline: 3px solid currentColor;
-  outline-offset: 3px;
-}
-
-.container {
-  width: 100%;
-  max-width: 640px;
-  padding: 20px;
-}
-
-.screen {
-  display: none;
-  text-align: center;
-}
-
-.screen.active {
-  display: block;
-}
-
-/* Landing */
-.logo-container {
-  margin-bottom: 2rem;
-}
-
-.logo {
-  max-width: 300px;
-  width: 80%;
-  height: auto;
-}
-
-h1 {
-  font-size: 3rem;
-  font-weight: 900;
-  margin-bottom: 1rem;
-  letter-spacing: -0.02em;
-}
-
-h2 {
-  font-size: 2rem;
-  font-weight: 700;
-  margin-bottom: 2rem;
-}
-
-h3 {
-  font-size: 1.5rem;
-  font-weight: 600;
-  margin-bottom: 1rem;
-}
-
-.tagline {
-  font-size: 1.2rem;
-  color: #999;
-  margin-bottom: 3rem;
-  line-height: 1.6;
-  max-width: 500px;
-  margin-left: auto;
-  margin-right: auto;
-}
-
-p {
-  font-size: 1.2rem;
-  margin-bottom: 2rem;
-  color: #999;
-}
-
-/* Buttons */
-.btn-primary, .btn-secondary {
-  padding: 1.2rem 2rem;
-  font-size: 1.2rem;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  font-weight: 600;
-  transition: all 0.2s ease;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-
-.btn-primary {
-  background: #FF0000;
-  color: #fff;
-}
-
-.btn-primary:hover {
-  background: #CC0000;
-  transform: translateY(-2px);
-}
-
-.btn-primary:active {
-  transform: translateY(0);
-}
-
-.btn-secondary {
-  background: #333;
-  color: #fff;
-  width: 100%;
-  max-width: 300px;
-}
-
-.btn-secondary:hover {
-  background: #444;
-}
-
-.btn-secondary:active {
-  background: #555;
-}
-
-.btn-new-round {
-  width: 100%;
-  max-width: 300px;
-  margin: 2rem auto;
-  display: block;
-}
-
-/* Video */
-#camera-feed {
-  width: 100%;
-  border-radius: 12px;
-  transform: scaleX(-1);
-  background: #111;
-  margin-bottom: 2rem;
-}
-
-.overlay {
-  text-align: center;
-}
-
-/* Punch Display */
-.punch-display {
-  font-size: 6rem;
-  font-weight: 900;
-  color: #FF0000;
-  text-shadow: 0 0 30px rgba(255,0,0,0.5);
-  margin-bottom: 1rem;
-  font-variant-numeric: tabular-nums;
-}
-
-.timer-display {
-  font-size: 2.5rem;
-  font-weight: 700;
-  color: #fff;
-  margin-bottom: 1rem;
-  font-variant-numeric: tabular-nums;
-  text-shadow: 0 2px 8px rgba(0,0,0,0.8);
-}
-
-/* Stats */
-.stats {
-  display: flex;
-  justify-content: space-around;
-  margin: 2rem 0;
-  gap: 1rem;
-  flex-wrap: wrap;
-}
-
-.stat {
-  flex: 1;
-  min-width: 100px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-#summary-speed {
-  color: #FFD700;
-}
-
-.stat-value {
-  font-size: 2.5rem;
-  font-weight: 700;
-  color: #FF0000;
-  margin-bottom: 0.5rem;
-}
-
-.stat-label {
-  font-size: 0.9rem;
-  color: #666;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-}
-
-.streak {
-  margin: 2rem 0;
-  padding: 1.5rem;
-  background: #111;
-  border: 2px solid #FF0000;
-  border-radius: 12px;
-  text-align: center;
-}
-
-.streak p {
-  font-size: 1.1rem;
-  color: #999;
-  margin: 0;
-}
-
-.streak strong {
-  color: #FF0000;
-  font-size: 1.8rem;
-  font-weight: 700;
-}
-
-/* Loading & Processing */
-#loading, #processing {
-  text-align: center;
-}
-
-.spinner {
-  border: 4px solid #333;
-  border-top: 4px solid #FF0000;
-  border-radius: 50%;
-  width: 60px;
-  height: 60px;
-  animation: spin 1s linear infinite;
-  margin: 2rem auto;
-}
-
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
-
-/* Share Section */
-#share-section {
-  margin: 2rem 0;
-  padding: 2rem;
-  background: #111;
-  border-radius: 12px;
-}
-
-.share-preview {
-  width: 100%;
-  max-width: 400px;
-  border-radius: 8px;
-  margin: 1rem auto;
-  display: block;
-  border: 2px solid #FF0000;
-}
-
-.share-buttons {
-  display: flex;
-  gap: 1rem;
-  justify-content: center;
-  margin-top: 1.5rem;
-  flex-wrap: wrap;
-}
-
-.share-buttons a,
-.share-buttons button {
-  flex: 1;
-  max-width: 200px;
-  min-width: 150px;
-  text-decoration: none;
-  text-align: center;
-  display: inline-block;
-}
-
-/* Goal UI */
-.goal-wrap {
-  margin-top: 10px;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  align-items: center;
-}
-
-.goal-pill {
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  padding: 10px 14px;
-  border-radius: 999px;
-  background: rgba(255,255,255,0.08);
-  border: 1px solid rgba(255,255,255,0.12);
-  backdrop-filter: blur(10px);
-}
-
-.goal-label {
-  font-size: 12px;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  opacity: 0.7;
-}
-
-.goal-value {
-  font-size: 14px;
-  font-weight: 700;
-}
-
-.goal-status {
-  font-size: 13px;
-  opacity: 0.8;
-}
-
-#punch-count.hit-target {
-  color: #22c55e;
-  text-shadow: 0 0 18px rgba(34, 197, 94, 0.35);
-  transform: scale(1.03);
-  transition: transform 180ms ease, color 180ms ease;
-}
-
-.goal-hit .goal-pill {
-  background: rgba(34, 197, 94, 0.14);
-  border-color: rgba(34, 197, 94, 0.35);
-}
-
-.goal-hit .goal-status {
-  color: rgba(34, 197, 94, 0.95);
-  opacity: 1;
-}
-
-/* Card + Form UI */
-.card {
-  margin-top: 16px;
-  padding: 14px;
-  border-radius: 14px;
-  background: rgba(255,255,255,0.06);
-  border: 1px solid rgba(255,255,255,0.12);
-  backdrop-filter: blur(10px);
-}
-
-.card-title {
-  font-size: 15px;
-  font-weight: 800;
-  margin-bottom: 4px;
-}
-
-.card-subtitle {
-  font-size: 13px;
-  opacity: 0.75;
-  margin-bottom: 10px;
-}
-
-.email-row {
-  display: flex;
-  gap: 10px;
-  align-items: center;
-}
-
-.input {
-  flex: 1;
-  height: 42px;
-  padding: 0 12px;
-  border-radius: 12px;
-  border: 1px solid rgba(255,255,255,0.15);
-  background: rgba(0,0,0,0.35);
-  color: #fff;
-  outline: none;
-}
-
-.input:focus {
-  border-color: rgba(255,255,255,0.35);
-  box-shadow: 0 0 0 4px rgba(255,255,255,0.06);
-}
-
-.btn {
-  height: 42px;
-  padding: 0 14px;
-  border-radius: 12px;
-  border: 0;
-  font-weight: 800;
-  cursor: pointer;
-}
-
-.btn-primary:disabled {
-  opacity: 0.55;
-  cursor: not-allowed;
-}
-
-.msg {
-  margin-top: 10px;
-  font-size: 13px;
-  min-height: 18px;
-  opacity: 0.9;
-}
-
-.msg.success {
-  color: rgba(34, 197, 94, 0.95);
-}
-
-.msg.error {
-  color: rgba(239, 68, 68, 0.95);
-}
-
-/* ===== IMPROVED LANDING LAYOUT ===== */
-
-/* Main hero section - generous spacing */
-.landing-main {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-  align-items: center;
-  min-height: 60vh;
-  justify-content: center;
-  padding: 40px 0 80px;
-}
-
-/* Create clear visual separation */
-.landing-footer {
-  margin-top: 80px;
-  padding: 40px 20px 20px;
-  width: 100%;
-  max-width: 560px;
-  margin-left: auto;
-  margin-right: auto;
-  text-align: left;
-  border-top: 2px solid rgba(255,255,255,0.12);
-  background: linear-gradient(to bottom, transparent, rgba(255,255,255,0.02));
-  border-radius: 20px 20px 0 0;
-}
-
-/* FAQ styling - more breathing room */
-.faq-item {
-  padding: 18px 0;
-  border-bottom: 1px solid rgba(255,255,255,0.08);
-}
-
-.faq-item:first-child {
-  padding-top: 0;
-}
-
-.faq-item:last-of-type {
-  border-bottom: none;
-  padding-bottom: 24px;
-}
-
-.faq-item summary {
-  cursor: pointer;
-  font-weight: 700;
-  font-size: 1rem;
-  list-style: none;
-  padding: 8px 0;
-  transition: color 0.2s ease;
-  position: relative;
-  padding-left: 24px;
-}
-
-/* Add a subtle indicator */
-.faq-item summary::before {
-  content: "→";
-  position: absolute;
-  left: 0;
-  color: #FF0000;
-  transition: transform 0.2s ease;
-}
-
-.faq-item[open] summary::before {
-  transform: rotate(90deg);
-}
-
-.faq-item summary:hover {
-  color: #FF0000;
-}
-
-.faq-item summary::-webkit-details-marker { 
-  display: none; 
-}
-
-.faq-item p {
-  margin: 14px 0 0 24px;
-  opacity: 0.75;
-  line-height: 1.6;
-  font-size: 0.95rem;
-}
-
-/* Help section */
-.landing-help {
-  margin-top: 32px;
-  padding-top: 24px;
-  border-top: 1px solid rgba(255,255,255,0.08);
-  opacity: 0.85;
-  font-size: 0.95rem;
-  text-align: center;
-}
-
-.help-row {
-  margin-top: 24px;
-  padding-top: 20px;
-  border-top: 1px solid rgba(255,255,255,0.08);
-  opacity: 0.85;
-  font-size: 0.95rem;
-  text-align: center;
-}
-
-.ig-link {
-  color: #FF0000;
-  font-weight: 700;
-  text-decoration: none;
-  text-underline-offset: 3px;
-  transition: opacity 0.2s ease;
-}
-
-.ig-link:hover {
-  opacity: 0.8;
-  text-decoration: underline;
-}
-
-/* Mobile responsiveness */
-@media (max-width: 480px) {
+/* ===================================
+   RESET & BASE STYLES
+   =================================== */
+
+   * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+  
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+    background: #000;
+    color: #fff;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  /* ===================================
+     ACCESSIBILITY
+     =================================== */
+  
+  .sr-only {
+    position: absolute !important;
+    width: 1px !important;
+    height: 1px !important;
+    padding: 0 !important;
+    margin: -1px !important;
+    overflow: hidden !important;
+    clip: rect(0, 0, 0, 0) !important;
+    white-space: nowrap !important;
+    border: 0 !important;
+  }
+  
+  .skip-link {
+    position: absolute;
+    left: -999px;
+    top: 0;
+  }
+  
+  .skip-link:focus {
+    left: 1rem;
+    top: 1rem;
+    z-index: 9999;
+  }
+  
+  :focus-visible,
+  a:focus-visible,
+  button:focus-visible,
+  input:focus-visible,
+  summary:focus-visible,
+  [role="button"]:focus-visible {
+    outline: 3px solid #fff;
+    outline-offset: 3px;
+  }
+  
+  /* ===================================
+     LAYOUT
+     =================================== */
+  
+  .container {
+    width: 100%;
+    max-width: 640px;
+    padding: 20px;
+  }
+  
+  .screen {
+    display: none;
+    text-align: center;
+  }
+  
+  .screen.active {
+    display: block;
+  }
+  
+  /* ===================================
+     TYPOGRAPHY
+     =================================== */
+  
   h1 {
-    font-size: 2.5rem;
+    font-size: 3rem;
+    font-weight: 900;
+    margin-bottom: 1rem;
+    letter-spacing: -0.02em;
+  }
+  
+  h2 {
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 2rem;
+  }
+  
+  h3 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+  }
+  
+  p,
+  .tagline,
+  .faq-item p {
+    line-height: 1.6;
+  }
+  
+  p {
+    font-size: 1.2rem;
+    margin-bottom: 2rem;
+    color: #999;
+  }
+  
+  .tagline {
+    font-size: 1.2rem;
+    color: #999;
+    margin-bottom: 3rem;
+    max-width: 500px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  
+  /* ===================================
+     BUTTONS
+     =================================== */
+  
+  .btn-primary,
+  .btn-secondary,
+  .btn {
+    padding: 1.2rem 2rem;
+    font-size: 1.2rem;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.2s ease;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  
+  .btn-primary {
+    background: #FF0000;
+    color: #fff;
+  }
+  
+  .btn-primary:hover {
+    background: #CC0000;
+    transform: translateY(-2px);
+  }
+  
+  .btn-primary:active {
+    transform: translateY(0);
+  }
+  
+  .btn-primary:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+  }
+  
+  .btn-secondary {
+    background: #333;
+    color: #fff;
+    width: 100%;
+    max-width: 300px;
+  }
+  
+  .btn-secondary:hover {
+    background: #444;
+  }
+  
+  .btn-secondary:active {
+    background: #555;
+  }
+  
+  .btn-new-round {
+    width: 100%;
+    max-width: 300px;
+    margin: 2rem auto;
+    display: block;
+  }
+  
+  .btn {
+    height: 42px;
+    padding: 0 14px;
+    border-radius: 12px;
+    border: 0;
+    font-weight: 800;
+    cursor: pointer;
+  }
+  
+  /* ===================================
+     LANDING PAGE
+     =================================== */
+  
+  .logo-container {
+    margin-bottom: 2rem;
   }
   
   .logo {
-    max-width: 250px;
-  }
-
-  .tagline {
-    font-size: 1.05rem;
-    margin-bottom: 2rem;
-  }
-
-  /* Adjust landing spacing for mobile */
-  .landing-main {
-    min-height: 50vh;
-    padding: 30px 0 60px;
-    gap: 16px;
-  }
-
-  .landing-footer {
-    margin-top: 60px;
-    padding: 30px 16px 16px;
-  }
-
-  .faq-item {
-    padding: 14px 0;
-  }
-
-  .faq-item summary {
-    font-size: 0.95rem;
-    padding-left: 20px;
-  }
-
-  .faq-item p {
-    margin-left: 20px;
-    font-size: 0.9rem;
+    max-width: 300px;
+    width: 80%;
+    height: auto;
   }
   
-  .punch-display {
-    font-size: 4.5rem;
+  .landing-main {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    align-items: center;
+    min-height: 60vh;
+    justify-content: center;
+    padding: 40px 0 80px;
+  }
+  
+  .landing-footer {
+    margin-top: 80px;
+    padding: 40px 20px 20px;
+    width: 100%;
+    max-width: 560px;
+    margin-left: auto;
+    margin-right: auto;
+    text-align: left;
+    border-top: 2px solid rgba(255, 255, 255, 0.12);
+    background: linear-gradient(to bottom, transparent, rgba(255, 255, 255, 0.02));
+    border-radius: 20px 20px 0 0;
+  }
+  
+  /* ===================================
+     FAQ
+     =================================== */
+  
+  .faq-item {
+    padding: 18px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  }
+  
+  .faq-item:first-child {
+    padding-top: 0;
+  }
+  
+  .faq-item:last-of-type {
+    border-bottom: none;
+    padding-bottom: 24px;
+  }
+  
+  .faq-item summary {
+    cursor: pointer;
+    font-weight: 700;
+    font-size: 1rem;
+    list-style: none;
+    padding: 8px 0;
+    padding-left: 24px;
+    transition: color 0.2s ease;
+    position: relative;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+  }
+  
+  .faq-item summary::before {
+    content: "→";
+    position: absolute;
+    left: 0;
+    color: #FF0000;
+    transition: transform 0.2s ease;
+  }
+  
+  .faq-item[open] summary::before {
+    transform: rotate(90deg);
+  }
+  
+  .faq-item summary:hover {
+    color: #FF0000;
+  }
+  
+  .faq-item summary::-webkit-details-marker {
+    display: none;
+  }
+  
+  .faq-item summary:focus-visible {
+    outline: 3px solid #fff;
+    outline-offset: 4px;
+    border-radius: 8px;
+  }
+  
+  .faq-item p {
+    margin: 14px 0 0 24px;
+    opacity: 0.75;
+    font-size: 0.95rem;
+  }
+  
+  .landing-help,
+  .help-row {
+    margin-top: 32px;
+    padding-top: 24px;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    opacity: 0.85;
+    font-size: 0.95rem;
+    text-align: center;
+  }
+  
+  .help-row {
+    margin-top: 24px;
+    padding-top: 20px;
+  }
+  
+  .ig-link {
+    color: #FF0000;
+    font-weight: 700;
+    text-decoration: underline;
+    text-decoration-thickness: 2px;
+    text-underline-offset: 3px;
+    transition: opacity 0.2s ease;
+  }
+  
+  .ig-link:hover,
+  .ig-link:focus-visible {
+    opacity: 1;
+  }
+  
+  .ig-link:visited {
+    opacity: 0.9;
+  }
+  
+  /* ===================================
+     VIDEO & OVERLAY
+     =================================== */
+  
+  #camera-feed {
+    width: 100%;
+    height: 100vh;
+    object-fit: cover;
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 1;
+  }
+  
+  .overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh;
+    z-index: 10;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    padding: 2rem 1rem;
+    pointer-events: none;
+  }
+  
+  .overlay button {
+    pointer-events: auto;
+  }
+  
+  .center-stats {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    margin: auto 0;
+  }
+  
+  /* ===================================
+     ROUND ACTIVE UI
+     =================================== */
+  
+  #end-round {
+    order: 1;
+    background: #FF0000;
+    color: #fff;
+    border: none;
+    padding: 1rem 2.5rem;
+    font-size: 1.1rem;
+    font-weight: 700;
+    border-radius: 8px;
+    cursor: pointer;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    box-shadow: 0 4px 12px rgba(255, 0, 0, 0.4);
+    margin-bottom: auto;
   }
   
   .timer-display {
-    font-size: 2rem;
+    order: 2;
+    font-size: 3rem;
+    font-weight: 700;
+    color: #fff;
+    font-variant-numeric: tabular-nums;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.9);
+    margin: auto 0;
   }
-
+  
+  .punch-display {
+    order: 3;
+    font-size: 6rem;
+    font-weight: 700;
+    color: #fff;
+    text-shadow: 0 4px 16px rgba(0, 0, 0, 0.9);
+    line-height: 1;
+    margin: 0;
+    font-variant-numeric: tabular-nums;
+  }
+  
+  #punch-count.hit-target {
+    color: #22c55e;
+    text-shadow: 0 0 18px rgba(34, 197, 94, 0.35);
+    transform: scale(1.03);
+    transition: transform 180ms ease, color 180ms ease;
+  }
+  
+  /* ===================================
+     GOAL UI
+     =================================== */
+  
+  .goal-wrap {
+    order: 4;
+    margin-top: auto;
+    margin-bottom: 2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    align-items: center;
+  }
+  
+  .goal-pill {
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(10px);
+    padding: 0.75rem 1.5rem;
+    border-radius: 999px;
+    border: 2px solid rgba(255, 255, 255, 0.2);
+  }
+  
+  .goal-label {
+    display: block;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: rgba(255, 255, 255, 0.7);
+    margin-bottom: 0.25rem;
+  }
+  
+  .goal-value {
+    display: block;
+    font-size: 1rem;
+    font-weight: 700;
+    color: #fff;
+  }
+  
+  .goal-status {
+    margin-top: 0.5rem;
+    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.9);
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
+  }
+  
+  .goal-wrap.goal-hit .goal-pill {
+    background: rgba(34, 197, 94, 0.3);
+    border-color: rgba(34, 197, 94, 0.5);
+    animation: pulse 2s ease-in-out infinite;
+  }
+  
+  .goal-wrap.goal-hit .goal-status {
+    color: rgba(34, 197, 94, 0.95);
+    opacity: 1;
+  }
+  
+  @keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+  }
+  
+  /* ===================================
+     SUMMARY STATS
+     =================================== */
+  
   .stats {
-    gap: 1.5rem;
+    display: flex;
+    justify-content: space-around;
+    margin: 2rem 0;
+    gap: 1rem;
+    flex-wrap: wrap;
   }
-    
+  
   .stat {
-    min-width: 45%;
+    flex: 1;
+    min-width: 100px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
   }
   
   .stat-value {
-    font-size: 2rem;
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #FF0000;
+    margin-bottom: 0.5rem;
+  }
+  
+  .stat-label {
+    font-size: 0.9rem;
+    color: #666;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+  }
+  
+  #summary-speed {
+    color: #FFD700;
+    font-weight: 800;
+  }
+  
+  .streak {
+    margin: 2rem 0;
+    padding: 1.5rem;
+    background: #111;
+    border: 2px solid #FF0000;
+    border-radius: 12px;
+    text-align: center;
+  }
+  
+  .streak p {
+    font-size: 1.1rem;
+    color: #999;
+    margin: 0;
+  }
+  
+  .streak strong {
+    color: #FF0000;
+    font-size: 1.8rem;
+    font-weight: 700;
+  }
+  
+  /* ===================================
+     LOADING & PROCESSING
+     =================================== */
+  
+  #loading,
+  #processing {
+    text-align: center;
+  }
+  
+  .spinner {
+    border: 4px solid #333;
+    border-top: 4px solid #FF0000;
+    border-radius: 50%;
+    width: 60px;
+    height: 60px;
+    animation: spin 1s linear infinite;
+    margin: 2rem auto;
+  }
+  
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+  
+  /* ===================================
+     SHARE SECTION
+     =================================== */
+  
+  #share-section {
+    margin: 2rem 0;
+    padding: 2rem;
+    background: #111;
+    border-radius: 12px;
+  }
+  
+  .share-preview {
+    width: 100%;
+    max-width: 400px;
+    border-radius: 8px;
+    margin: 1rem auto;
+    display: block;
+    border: 2px solid #FF0000;
   }
   
   .share-buttons {
-    flex-direction: column;
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    margin-top: 1.5rem;
+    flex-wrap: wrap;
   }
   
   .share-buttons a,
   .share-buttons button {
-    max-width: 100%;
+    flex: 1;
+    max-width: 200px;
+    min-width: 150px;
+    text-decoration: none;
+    text-align: center;
+    display: inline-block;
   }
-}
-
-/* ===== Accessibility additions ===== */
-
-/* 1) Screen-reader only utility (you use .sr-only in HTML) */
-.sr-only {
-  position: absolute !important;
-  width: 1px !important;
-  height: 1px !important;
-  padding: 0 !important;
-  margin: -1px !important;
-  overflow: hidden !important;
-  clip: rect(0, 0, 0, 0) !important;
-  white-space: nowrap !important;
-  border: 0 !important;
-}
-
-/* 2) Make keyboard focus very obvious everywhere */
-a:focus-visible,
-button:focus-visible,
-input:focus-visible,
-summary:focus-visible,
-[role="button"]:focus-visible {
-  outline: 3px solid #fff; /* currentColor can become red on red backgrounds */
-  outline-offset: 3px;
-}
-
-/* 3) Fix: you currently remove outline on summary (keyboard users lose focus) */
-.faq-item summary {
-  outline: none; /* remove this line entirely if you want */
-}
-
-/* Better: give summary a dedicated focus style */
-.faq-item summary:focus-visible {
-  outline: 3px solid #fff;
-  outline-offset: 4px;
-  border-radius: 8px;
-}
-
-/* 4) Make FAQ and links meet recommended tap target sizes */
-.faq-item summary {
-  min-height: 44px;           /* good mobile target */
-  display: flex;
-  align-items: center;
-}
-
-.ig-link {
-  text-decoration: underline; /* don’t rely on color alone */
-  text-decoration-thickness: 2px;
-}
-
-/* Provide visited state (helps orientation) */
-.ig-link:visited {
-  opacity: 0.9;
-}
-
-/* 5) Don’t “only-color” communicate state */
-#summary-speed {
-  /* keep the gold, but ensure it’s not the only cue (HTML label already helps) */
-  font-weight: 800;
-}
-
-/* 6) Reduced motion support */
-@media (prefers-reduced-motion: reduce) {
-  * {
-    animation-duration: 0.001ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.001ms !important;
-    scroll-behavior: auto !important;
+  
+  /* ===================================
+     CARDS & FORMS
+     =================================== */
+  
+  .card {
+    margin-top: 16px;
+    padding: 14px;
+    border-radius: 14px;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    backdrop-filter: blur(10px);
   }
-
-  .spinner {
-    animation: none !important;
+  
+  .card-title {
+    font-size: 15px;
+    font-weight: 800;
+    margin-bottom: 4px;
   }
-
-  .btn-primary:hover {
-    transform: none !important;
+  
+  .card-subtitle {
+    font-size: 13px;
+    opacity: 0.75;
+    margin-bottom: 10px;
   }
-}
-
-/* 7) High contrast / forced colors support (Windows) */
-@media (forced-colors: active) {
-  .btn-primary,
-  .btn-secondary,
-  .btn {
-    forced-color-adjust: auto;
-    border: 1px solid ButtonText;
-    background: ButtonFace;
-    color: ButtonText;
+  
+  .email-row {
+    display: flex;
+    gap: 10px;
+    align-items: center;
   }
-
-  .punch-display {
-    text-shadow: none !important;
+  
+  .input {
+    flex: 1;
+    height: 42px;
+    padding: 0 12px;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    background: rgba(0, 0, 0, 0.35);
+    color: #fff;
+    outline: none;
   }
-
-  .goal-pill,
-  .card,
-  .streak {
-    border: 1px solid CanvasText;
+  
+  .input:focus,
+  .input:focus-visible {
+    border-color: rgba(255, 255, 255, 0.5);
+    box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.2);
   }
-}
-
-/* 8) Improve text spacing resilience (WCAG text spacing) */
-p, .tagline, .faq-item p {
-  line-height: 1.6;
-}
-
-/* 9) Make link hover/active not depend on subtle opacity alone */
-.ig-link:hover,
-.ig-link:focus-visible {
-  opacity: 1;
-}
-
-/* 10) Inputs: ensure focus doesn’t rely only on faint border */
-.input:focus-visible {
-  box-shadow: 0 0 0 4px rgba(255,255,255,0.2);
-  border-color: rgba(255,255,255,0.5);
-}
+  
+  .msg {
+    margin-top: 10px;
+    font-size: 13px;
+    min-height: 18px;
+    opacity: 0.9;
+  }
+  
+  .msg.success {
+    color: rgba(34, 197, 94, 0.95);
+  }
+  
+  .msg.error {
+    color: rgba(239, 68, 68, 0.95);
+  }
+  
+  /* ===================================
+     MOBILE RESPONSIVE
+     =================================== */
+  
+  @media (max-width: 480px) {
+    h1 {
+      font-size: 2.5rem;
+    }
+  
+    .logo {
+      max-width: 250px;
+    }
+  
+    .tagline {
+      font-size: 1.05rem;
+      margin-bottom: 2rem;
+    }
+  
+    .landing-main {
+      min-height: 50vh;
+      padding: 30px 0 60px;
+      gap: 16px;
+    }
+  
+    .landing-footer {
+      margin-top: 60px;
+      padding: 30px 16px 16px;
+    }
+  
+    .faq-item {
+      padding: 14px 0;
+    }
+  
+    .faq-item summary {
+      font-size: 0.95rem;
+      padding-left: 20px;
+    }
+  
+    .faq-item p {
+      margin-left: 20px;
+      font-size: 0.9rem;
+    }
+  
+    .timer-display {
+      font-size: 2.5rem;
+    }
+  
+    .punch-display {
+      font-size: 5rem;
+    }
+  
+    #end-round {
+      padding: 0.9rem 2rem;
+      font-size: 1rem;
+    }
+  
+    .overlay {
+      padding: 1.5rem 1rem;
+    }
+  
+    .goal-pill {
+      padding: 0.6rem 1.2rem;
+    }
+  
+    .stats {
+      gap: 1.5rem;
+    }
+  
+    .stat {
+      min-width: 45%;
+    }
+  
+    .stat-value {
+      font-size: 2rem;
+    }
+  
+    .share-buttons {
+      flex-direction: column;
+    }
+  
+    .share-buttons a,
+    .share-buttons button {
+      max-width: 100%;
+    }
+  }
+  
+  /* ===================================
+     ACCESSIBILITY: REDUCED MOTION
+     =================================== */
+  
+  @media (prefers-reduced-motion: reduce) {
+    * {
+      animation-duration: 0.001ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.001ms !important;
+      scroll-behavior: auto !important;
+    }
+  
+    .spinner {
+      animation: none !important;
+    }
+  
+    .btn-primary:hover {
+      transform: none !important;
+    }
+  }
+  
+  /* ===================================
+     ACCESSIBILITY: HIGH CONTRAST MODE
+     =================================== */
+  
+  @media (forced-colors: active) {
+    .btn-primary,
+    .btn-secondary,
+    .btn {
+      forced-color-adjust: auto;
+      border: 1px solid ButtonText;
+      background: ButtonFace;
+      color: ButtonText;
+    }
+  
+    .punch-display {
+      text-shadow: none !important;
+    }
+  
+    .goal-pill,
+    .card,
+    .streak {
+      border: 1px solid CanvasText;
+    }
+  }

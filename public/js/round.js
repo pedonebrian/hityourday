@@ -22,19 +22,6 @@ class RoundManager {
     return id;
   }
 
-  // --- mph estimate (tunable) ---
-  estimateTopSpeedMph() {
-    // detector.fastestPunch is a normalized MediaPipe velocity scalar
-    const v = Number(this.detector.fastestPunch || 0);
-
-    // IMPORTANT: This is a game-y estimate, not real mph. Keep it sane.
-    // If you were seeing 194mph, your multiplier is too high.
-    // Start here and tune after observing typical values.
-    const mph = v * 12;
-
-    return Math.max(0, mph);
-  }
-
   // Email UI helper
   setEmailUI(state, text = '') {
     const btn = document.getElementById('email-save-btn');
@@ -90,39 +77,53 @@ class RoundManager {
 
   async startRound() {
     try {
+      // Init camera
       const video = document.getElementById('camera-feed');
       await this.camera.init(video);
-
+      
       await new Promise(resolve => setTimeout(resolve, 1000));
+      
       console.log('Video dimensions:', video.videoWidth, 'x', video.videoHeight);
-
-      // Set goal UI (if present)
-      const goalValueEl = document.getElementById('punch-target-value');
-      if (goalValueEl) goalValueEl.textContent = DAILY_TARGET_PUNCHES;
-
-      const goalStatus = document.getElementById('goal-status');
-      if (goalStatus) goalStatus.textContent = 'Keep going 👊';
-
-      // Start recording + detection
-      this.startRecording();
-
+  
+      // Init detector
       await this.detector.init();
       await new Promise(resolve => setTimeout(resolve, 500));
-
+  
+      // Start detection
       this.startTime = Date.now();
       this.detector.start(video, (count) => {
         this.updatePunchCount(count);
       });
-
+  
+      // Start timer
       this.startTimer();
-
-      document.getElementById('landing').style.display = 'none';
+  
+      // START RECORDING AFTER RANDOM DELAY (5-30 seconds into round)
+      const randomDelay = 5000 + Math.random() * 25000; // 5-30 seconds
+      console.log(`📹 Will start recording in ${(randomDelay/1000).toFixed(0)}s`);
+      
+      setTimeout(() => {
+        if (this.detector.isDetecting) {
+          console.log('📹 Starting 5-second clip capture...');
+          this.startRecording();
+          
+          // Stop recording after 5 seconds
+          setTimeout(() => {
+            if (this.recorder && this.recorder.state === 'recording') {
+              console.log('✅ 5-second clip captured');
+              this.stopRecording();
+            }
+          }, 5000);
+        }
+      }, randomDelay);
+  
+      // Show round active
       document.getElementById('loading').style.display = 'none';
       document.getElementById('round-active').style.display = 'block';
     } catch (error) {
-      alert(error.message);
-      document.getElementById('loading').style.display = 'none';
-      document.getElementById('landing').style.display = 'block';
+      console.error('Error starting round:', error);
+      alert('Failed to start round. Please check camera permissions.');
+      this.showLanding();
     }
   }
 
@@ -130,51 +131,38 @@ class RoundManager {
     this.recordedChunks = [];
     const stream = this.camera.stream;
   
-    let options = { 
-      mimeType: 'video/mp4',
-      videoBitsPerSecond: 1500000
-    };
+    // Try formats in order of preference
+    const formats = [
+      { mimeType: 'video/mp4', videoBitsPerSecond: 1500000 },
+      { mimeType: 'video/webm;codecs=vp8', videoBitsPerSecond: 1500000 },
+      { mimeType: 'video/webm', videoBitsPerSecond: 1500000 },
+      { mimeType: 'video/webm;codecs=vp9', videoBitsPerSecond: 1500000 }
+    ];
   
-    // Fallback to WebM if MP4 not supported
-    if (!MediaRecorder.isTypeSupported(options.mimeType)) {
-      options = { 
-        mimeType: 'video/webm;codecs=vp8',
-        videoBitsPerSecond: 1500000
-      };
+    let options = formats[0]; // default
+    for (const format of formats) {
+      if (MediaRecorder.isTypeSupported(format.mimeType)) {
+        options = format;
+        console.log('✅ Using format:', format.mimeType);
+        break;
+      }
     }
   
     this.recorder = new MediaRecorder(stream, options);
   
-    const MAX_SECONDS = 10; // Keep last 10 seconds
-    const TIMESLICE_MS = 1000;
-  
     this.recorder.ondataavailable = (event) => {
       if (event.data && event.data.size > 0) {
         this.recordedChunks.push(event.data);
-  
-        // Keep only last 10 seconds
-        while (this.recordedChunks.length > MAX_SECONDS) {
-          this.recordedChunks.shift();
-        }
-  
-        // Log every 5 seconds
-        if (this.recordedChunks.length % 5 === 0) {
-          const totalBytes = this.recordedChunks.reduce((sum, b) => sum + b.size, 0);
-          console.log('🎞️ buffer:', {
-            chunks: this.recordedChunks.length,
-            sizeMB: (totalBytes / (1024 * 1024)).toFixed(2)
-          });
-        }
       }
     };
   
     this.recorder.onerror = (e) => {
-      console.error('MediaRecorder error:', e);
+      console.error('❌ MediaRecorder error:', e);
     };
   
-    // CRITICAL: Use timeslice for rolling buffer
-    this.recorder.start(TIMESLICE_MS);
-    console.log('📹 Recording with 10-second rolling buffer');
+    // Start without timeslice for complete valid blob ✅
+    this.recorder.start();
+    console.log('📹 Recording started');
   }
 
   startTimer() {
@@ -207,59 +195,48 @@ class RoundManager {
   }
 
   async endRound() {
-    // Stop everything
+    // Stop detection
     this.detector.stop();
     clearInterval(this.timerInterval);
-
+  
     const duration = Math.floor((Date.now() - this.startTime) / 1000);
     const punches = this.detector.punchCount;
-
-    const pace = duration > 0 ? (punches / duration) * 60 : 0;
-    const topSpeedMph = this.estimateTopSpeedMph();
-
-    // Stop recording and flush final chunk
-    await this.stopRecording();
-
-    // Show processing state
+    
+    // Calculate pace and top speed
+    const pace = duration > 0 ? ((punches / duration) * 60).toFixed(1) : 0;
+    const topSpeedMph = this.detector.fastestPunch 
+      ? Math.round(this.detector.fastestPunch * 100) 
+      : 0;
+  
+    // If still recording, wait for it to finish
+    if (this.recorder && this.recorder.state === 'recording') {
+      console.log('⏸️ Waiting for recording to finish...');
+      await this.stopRecording();
+    }
+  
+    // Show processing
     document.getElementById('round-active').style.display = 'none';
     document.getElementById('processing').style.display = 'block';
-
-    // Save even if no video
-    if (!this.recordedChunks.length) {
-      console.warn('No recorded chunks available; saving round without video.');
-      try {
-        const roundData = await this.saveRound(punches, duration, pace, topSpeedMph, null);
-        this.showSummary(roundData);
-      } catch (error) {
-        console.error('Error saving round:', error);
-        this.showSummary({
-          punch_count: punches,
-          duration_seconds: duration,
-          punches_per_minute: pace,
-          top_speed_mph: topSpeedMph
-        });
-      } finally {
-        this.camera.stop();
-      }
-      return;
+  
+    // Get video if captured
+    let videoBlob = null;
+    if (this.recordedChunks.length > 0) {
+      videoBlob = new Blob(this.recordedChunks, { 
+        type: this.recordedChunks[0]?.type || 'video/webm' 
+      });
+      console.log('📹 Video captured:', (videoBlob.size / 1024 / 1024).toFixed(2), 'MB');
+    } else {
+      console.log('⚠️ No video captured (round < 5s or recording not started)');
     }
-
-    const clipBlob = new Blob(this.recordedChunks, {
-      type: this.recordedChunks[0]?.type || 'video/webm'
-    });
-
+  
     try {
-      // server now chooses a random 5 seconds, so no clipStart needed
-      const roundData = await this.saveRound(punches, duration, pace, topSpeedMph, clipBlob);
-      this.showSummary(roundData);
+      const round = await this.saveRound(punches, duration, pace, topSpeedMph, videoBlob);
+      await this.loadStreak();
+      this.showSummary(round);
     } catch (error) {
       console.error('Error saving round:', error);
-      this.showSummary({
-        punch_count: punches,
-        duration_seconds: duration,
-        punches_per_minute: pace,
-        top_speed_mph: topSpeedMph
-      });
+      alert('Failed to save round. Please try again.');
+      this.showLanding();
     } finally {
       this.camera.stop();
     }
@@ -314,7 +291,7 @@ class RoundManager {
     const pace = round.punches_per_minute ??
       (durationSeconds > 0 ? ((punchCount / durationSeconds) * 60).toFixed(1) : '0.0');
 
-    const mph = round.top_speed_mph ?? this.estimateTopSpeedMph();
+    const mph = round.top_speed_mph ?? 0;
 
     document.getElementById('processing').style.display = 'none';
     document.getElementById('summary').style.display = 'block';
@@ -340,6 +317,7 @@ class RoundManager {
     }
 
     this.loadStreak();
+    this.detector.reset();
   }
 
   async loadStreak() {

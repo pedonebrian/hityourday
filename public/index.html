@@ -90,35 +90,31 @@
           <div class="sr-only" id="live-instructions">
             Punch count and timer update automatically. Use End Round to stop.
           </div>
-
+        
+          <!-- Top: End Round button -->
           <button id="end-round" class="btn-secondary" type="button">
             End Round
           </button>
-
-          <div id="timer" class="timer-display" role="status" aria-live="polite" aria-atomic="true">
-            0:00
+        
+          <!-- Center: Timer & Punch Count -->
+          <div class="center-stats">
+            <div id="timer" class="timer-display" role="status" aria-live="polite" aria-atomic="true">
+              0:00
+            </div>
+            
+            <div id="punch-count" class="punch-display" role="status" aria-live="polite" aria-atomic="true">
+              0
+            </div>
           </div>
-
-          <!-- Use role=status and aria-live so screen readers get updates without being too noisy -->
-          <div
-            id="punch-count"
-            class="punch-display"
-            role="status"
-            aria-live="polite"
-            aria-atomic="true"
-          >
-            0
-          </div>
-
-          <div id="goal-wrap" class="goal-wrap" aria-label="Today’s goal">
+        
+          <!-- Bottom: Goal -->
+          <div id="goal-wrap" class="goal-wrap" aria-label="Today's goal">
             <div class="goal-pill">
-              <span class="goal-label">Today’s Goal</span>
+              <span class="goal-label">Today's Goal</span>
               <span class="goal-value">
                 <span id="punch-target-value">100</span> punches
               </span>
             </div>
-
-            <!-- Status updates should also be in a live region -->
             <div id="goal-status" class="goal-status" role="status" aria-live="polite" aria-atomic="true">
               Keep going
             </div>

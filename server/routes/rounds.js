@@ -170,9 +170,6 @@ router.post(
       const paceFromClient = Number(req.body.pace);
       const topSpeedMphFromClient = Number(req.body.topSpeedMph);
 
-      const clipStartRaw = req.body.clipStart;
-      const clipStart = (clipStartRaw === '' || clipStartRaw == null) ? null : Number(clipStartRaw);
-
       if (!deviceId || !Number.isFinite(punchCount) || !Number.isFinite(durationSeconds)) {
         return res.status(400).json({ error: 'Missing/invalid required fields' });
       }
@@ -224,7 +221,6 @@ router.post(
             durationSeconds,
             punchesPerMinute,
             topSpeedMph,
-            clipStart,
             currentStreak
           });
 
@@ -238,6 +234,7 @@ router.post(
           );
         } catch (videoError) {
           console.error('Video processing error:', videoError);
+          console.error('Stack:', videoError.stack);
         } finally {
           if (tempVideoPath && fs.existsSync(tempVideoPath)) fs.unlinkSync(tempVideoPath);
         }
