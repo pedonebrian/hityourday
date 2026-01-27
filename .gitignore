@@ -13,3 +13,6 @@ build
 # IDE
 .vscode
 .idea
+
+# Ignore uploaded / generated videos
+public/uploads/
