@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hit Your Day - Motion comes before motivation</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="icon" type="image/png" href="/images/hyd-logo.PNG">
+</head>
+<body>
+  <div class="container">
+    <!-- Landing -->
+    <div id="landing" class="screen active">
+      <div class="landing-main">
+        <h1>HIT YOUR DAY</h1>
+        <p class="tagline">Motion comes before motivation. Small movement can change how you feel.</p>
+        <button id="start-round" class="btn-primary">Start Your Day</button>
+      </div>
+
+      <!-- Footer content (kept away from CTA) -->
+      <div class="landing-footer">
+        <details class="faq-item">
+          <summary>What is Hit Your Day?</summary>
+          <p>A frictionless daily habit. Throw punches for a short round, hit your goal, and build a streak.</p>
+        </details>
+
+        <details class="faq-item">
+          <summary>Do you store my camera video?</summary>
+          <p>
+            We don’t store your raw camera feed in the database. After your round, we may generate a short shareable clip
+            (about 5 seconds) so you can download/share it.
+          </p>
+        </details>
+
+        <details class="faq-item">
+          <summary>Why does it work best from a side angle?</summary>
+          <p>Side angle makes the punch motion clearer. Keep your full arm in frame and use good lighting.</p>
+        </details>
+
+        <details class="faq-item">
+          <summary>How do I keep my streak across devices?</summary>
+          <p>Enter your email after a round to link your streak to you (so it follows you on any device).</p>
+        </details>
+
+        <div class="landing-help">
+          Questions? DM us on Instagram:
+          <a class="ig-link" href="https://instagram.com/hityourday" target="_blank" rel="noopener">@hityourday</a>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- Loading -->
+    <div id="loading" class="screen">
+      <p>Loading camera and detection...</p>
+      <div class="spinner"></div>
+    </div>
+
+    <!-- Active Round -->
+    <div id="round-active" class="screen">
+      <video id="camera-feed" autoplay playsinline muted></video>
+
+      <div class="overlay">
+        <div id="punch-count" class="punch-display">0</div>
+
+        <!-- ✅ Better Goal UI (replace your old punch-target div with this) -->
+        <div id="goal-wrap" class="goal-wrap">
+          <div class="goal-pill">
+            <span class="goal-label">Today’s Goal</span>
+            <span class="goal-value"><span id="punch-target-value">100</span> punches</span>
+          </div>
+          <div id="goal-status" class="goal-status">Keep going 👊</div>
+        </div>
+
+        <div id="timer" class="timer-display">0:00</div>
+        <button id="end-round" class="btn-secondary">End Round</button>
+      </div>
+    </div>
+
+
+    <!-- Processing -->
+    <div id="processing" class="screen">
+      <h2>Processing your round...</h2>
+      <p>Creating your shareable clip</p>
+      <div class="spinner"></div>
+    </div>
+
+    <!-- Summary -->
+    <div id="summary" class="screen">
+      <h2>Round Complete</h2>
+      <div class="stats">
+        <div class="stat">
+          <span class="stat-value" id="summary-punches">0</span>
+          <span class="stat-label">Punches</span>
+        </div>
+        <div class="stat">
+          <span class="stat-value" id="summary-time">0:00</span>
+          <span class="stat-label">Time</span>
+        </div>
+        <div class="stat">
+          <span class="stat-value" id="summary-pace">0</span>
+          <span class="stat-label">Pace</span>
+        </div>
+        <div class="stat">
+            <span class="stat-value" id="summary-speed">--</span>
+            <span class="stat-label">Top Speed</span>
+          </div>
+      </div>
+      
+      <div class="streak">
+        <p>Current Streak: <strong id="current-streak">0</strong> days</p>
+      </div>
+
+      <!-- Share Section -->
+      <div id="share-section" style="display: none;">
+        <h3>Share Your Round</h3>
+        <video id="share-video-preview" controls playsinline class="share-preview"></video>
+        <div class="share-buttons">
+          <a id="download-video" class="btn-secondary" download>Download</a>
+          <button id="share-native" class="btn-primary">Share</button>
+        </div>
+      </div>
+
+      <div id="email-save-card" class="card">
+        <div class="card-title">Save your streak</div>
+        <div class="card-subtitle">Enter your email to keep your streak across any device.</div>
+      
+        <div class="email-row">
+          <input id="email-input" class="input" type="email" placeholder="you@email.com" autocomplete="email" />
+          <button id="email-save-btn" class="btn btn-primary">Save</button>
+        </div>
+      
+        <div id="email-save-msg" class="msg"></div>
+      </div>     
+
+      <button id="new-round" class="btn-primary btn-new-round">New Round</button>
+
+      <div class="help-row">
+        Need help? DM us:
+        <a class="ig-link" href="https://instagram.com/hityourday" target="_blank" rel="noopener">@hityourday</a>
+      </div>      
+    </div>
+  </div>
+
+  <!-- MediaPipe Hands - Load synchronously -->
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/control_utils/control_utils.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js"></script>
+  
+  <!-- Wait for MediaPipe to load before starting app -->
+  <script>
+    window.addEventListener('load', () => {
+      console.log('MediaPipe Hands available:', typeof Hands !== 'undefined');
+    });
+  </script>
+  
+  <script type="module" src="/js/round.js"></script>
+  <script type="module" src="/js/share.js"></script>
+</body>
+</html>

@@ -1,0 +1,1 @@
+export const DAILY_TARGET_PUNCHES = 100;
