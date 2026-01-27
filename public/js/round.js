@@ -128,59 +128,42 @@ class RoundManager {
 
   startRecording() {
     this.recordedChunks = [];
-  
     const stream = this.camera.stream;
   
-    // Prefer vp8 for smaller files / compatibility WITH BITRATE LIMIT
-    let options = { 
-      mimeType: 'video/webm;codecs=vp8',
-      videoBitsPerSecond: 2500000  // 2.5 Mbps = ~1.8 MB for 8 seconds
-    };
+    // Try formats in order of preference
+    const formats = [
+      { mimeType: 'video/mp4', videoBitsPerSecond: 1500000 },
+      { mimeType: 'video/webm;codecs=vp8', videoBitsPerSecond: 1500000 },
+      { mimeType: 'video/webm', videoBitsPerSecond: 1500000 },
+      { mimeType: 'video/webm;codecs=vp9', videoBitsPerSecond: 1500000 }
+    ];
   
-    if (!MediaRecorder.isTypeSupported(options.mimeType)) {
-      options = { 
-        mimeType: 'video/webm',
-        videoBitsPerSecond: 2500000
-      };
-      if (!MediaRecorder.isTypeSupported(options.mimeType)) {
-        options = { 
-          mimeType: 'video/mp4',
-          videoBitsPerSecond: 2500000
-        };
+    let options = formats[0]; // default
+    for (const format of formats) {
+      if (MediaRecorder.isTypeSupported(format.mimeType)) {
+        options = format;
+        console.log('✅ Using format:', format.mimeType);
+        break;
       }
     }
   
     this.recorder = new MediaRecorder(stream, options);
   
-    const MAX_SECONDS = 8;
-    const TIMESLICE_MS = 1000;
-  
+    // Collect chunks
     this.recorder.ondataavailable = (event) => {
       if (event.data && event.data.size > 0) {
         this.recordedChunks.push(event.data);
-  
-        // ✅ Keep only last ~8 seconds
-        while (this.recordedChunks.length > MAX_SECONDS) {
-          this.recordedChunks.shift();
-        }
-  
-        // helpful logging
-        const totalBytes = this.recordedChunks.reduce((sum, b) => sum + (b?.size || 0), 0);
-        console.log('🎞️ rolling buffer', {
-          chunks: this.recordedChunks.length,
-          totalMB: (totalBytes / (1024 * 1024)).toFixed(2),
-          mime: this.recorder.mimeType
-        });
       }
     };
   
     this.recorder.onerror = (e) => {
-      console.error('MediaRecorder error:', e);
+      console.error('❌ MediaRecorder error:', e);
     };
   
-    // ✅ CRITICAL: timeslice forces regular chunks (prevents "one giant blob")
-    this.recorder.start(TIMESLICE_MS);
-  } 
+    // Start without timeslice for complete valid blob
+    this.recorder.start();
+    console.log('📹 Recording started');
+  }
 
   startTimer() {
     const timerEl = document.getElementById('timer');
