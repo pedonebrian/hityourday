@@ -58,18 +58,16 @@ class VideoProcessor {
     });
   }
 
-  // ✅ Extract a clip starting at a specific time (or 0)
-  async extractClipAt(inputPath, outputPath, startSeconds = 0, durationSeconds = 5) {
-    const start = Number.isFinite(Number(startSeconds)) ? Math.max(0, Number(startSeconds)) : 0;
-    const dur = Number.isFinite(Number(durationSeconds)) ? Number(durationSeconds) : 5;
+  // ✅ Extract first N seconds (stable, no NaN, no seeking)
+  async extractFirstSeconds(inputPath, outputPath, seconds = 5) {
+    const s = Number.isFinite(Number(seconds)) ? Number(seconds) : 5;
 
     return new Promise((resolve, reject) => {
       ffmpeg(inputPath)
-        .setStartTime(start)
         .outputOptions([
           '-map 0:v:0?',
           '-map 0:a:0?',
-          `-t ${dur}`,
+          `-t ${s}`,            // first s seconds
           '-preset fast',
           '-crf 23',
           '-movflags +faststart'
@@ -265,8 +263,7 @@ async createOverlayPng(outputPath, { punches, roundSeconds, pace, topSpeedMph, s
         start = 0;
       }
 
-      // Extract random 5 seconds
-      await this.extractClipAt(inputPath, rawClipPath, start, clipSeconds);
+      await this.extractFirstSeconds(uploadedPath, rawClipPath, 5);
 
       // Overlay using full-round stats
       await this.createOverlayPng(overlayPath, { punches, roundSeconds, pace, topSpeedMph, streak });

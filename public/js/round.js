@@ -131,7 +131,7 @@ class RoundManager {
 
     const stream = this.camera.stream;
 
-    const options = { mimeType: 'video/webm;codecs=vp9' };
+    const options = { mimeType: 'video/webm;codecs=vp8' };
 
     if (!MediaRecorder.isTypeSupported(options.mimeType)) {
       options.mimeType = 'video/webm';
@@ -145,12 +145,16 @@ class RoundManager {
     this.recorder.ondataavailable = (event) => {
       if (event.data.size > 0) {
         this.recordedChunks.push(event.data);
+    
+        // ✅ Keep only the last 8 seconds (because recorder.start(1000))
+        const MAX_CHUNKS = 8;
+        if (this.recordedChunks.length > MAX_CHUNKS) {
+          this.recordedChunks.splice(0, this.recordedChunks.length - MAX_CHUNKS);
+        }
       }
     };
-
-    // More reliable than timeslices for some browsers: one continuous recording.
-    // (Prevents "only last few seconds" weirdness.)
-    this.recorder.start();
+    
+    this.recorder.start(1000);
   }
 
   startTimer() {
