@@ -248,9 +248,21 @@ async createOverlayPng(outputPath, { punches, roundSeconds, pace, topSpeedMph, s
 
       // Random start in [0, duration-clipSeconds]
       let start = 0;
-      if (Number.isFinite(duration) && duration > clipSeconds) {
-        const maxStart = Math.max(0, duration - clipSeconds);
-        start = Math.random() * maxStart;
+
+      if (Number.isFinite(duration) && duration > clipSeconds + 1) {
+        // avoid the first N seconds + avoid the last N seconds (so we always get a full clip)
+        const minStart = 3.0; // never start at 0; bump this to 2-3s if you want
+        const maxStart = Math.max(minStart, duration - clipSeconds - 0.25);
+      
+        // if maxStart is still <= minStart, fallback to middle-ish
+        if (maxStart <= minStart) {
+          start = Math.max(0, (duration - clipSeconds) / 2);
+        } else {
+          start = minStart + Math.random() * (maxStart - minStart);
+        }
+      } else {
+        // very short videos: fallback to 0 (can't guarantee not-first)
+        start = 0;
       }
 
       // Extract random 5 seconds
