@@ -1,6 +1,4 @@
 import ffmpeg from 'fluent-ffmpeg';
-ffmpeg.setFfmpegPath('/opt/homebrew/bin/ffmpeg');
-
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';

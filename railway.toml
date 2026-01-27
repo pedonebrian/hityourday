@@ -3,10 +3,3 @@ builder = "NIXPACKS"
 
 [deploy]
 startCommand = "npm start"
-```
-
----
-
-### **Aptfile**
-```
-ffmpeg
