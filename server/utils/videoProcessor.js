@@ -58,24 +58,64 @@ class VideoProcessor {
     });
   }
 
+  // Add this method to VideoProcessor class
+  async convertWebMToMp4(inputPath, outputPath) {
+    console.log('🔄 Converting WebM to MP4 for better compatibility...');
+    
+    return new Promise((resolve, reject) => {
+      ffmpeg(inputPath)
+        .outputOptions([
+          '-c:v libx264',
+          '-preset ultrafast',  // Fast conversion
+          '-crf 28',
+          '-avoid_negative_ts make_zero',
+          '-max_muxing_queue_size 1024'
+        ])
+        .output(outputPath)
+        .on('start', (cmd) => console.log('FFmpeg convert:', cmd))
+        .on('end', () => {
+          console.log('✅ WebM converted to MP4');
+          resolve(outputPath);
+        })
+        .on('error', (err, stdout, stderr) => {
+          console.error('❌ Conversion error:', err.message);
+          console.error('stderr:', stderr);
+          reject(err);
+        })
+        .run();
+    });
+  }
+
   // ✅ Extract first N seconds (stable, no NaN, no seeking)
   async extractFirstSeconds(inputPath, outputPath, seconds = 5) {
     const s = Number.isFinite(Number(seconds)) ? Number(seconds) : 5;
-
+  
     return new Promise((resolve, reject) => {
       ffmpeg(inputPath)
         .outputOptions([
           '-map 0:v:0?',
           '-map 0:a:0?',
-          `-t ${s}`,            // first s seconds
+          `-t ${s}`,
           '-preset fast',
           '-crf 23',
-          '-movflags +faststart'
+          '-movflags +faststart',
+          '-avoid_negative_ts make_zero',  // Add this - fixes WebM timestamp issues
+          '-max_muxing_queue_size 1024'    // Add this - prevents buffer issues
         ])
         .videoCodec('libx264')
         .output(outputPath)
-        .on('end', () => resolve(outputPath))
-        .on('error', reject)
+        .on('start', (commandLine) => {
+          console.log('🎬 FFmpeg command:', commandLine);
+        })
+        .on('end', () => {
+          console.log('✅ Extract complete:', outputPath);
+          resolve(outputPath);
+        })
+        .on('error', (err, stdout, stderr) => {
+          console.error('❌ FFmpeg error:', err.message);
+          console.error('FFmpeg stderr:', stderr);
+          reject(err);
+        })
         .run();
     });
   }
@@ -229,6 +269,7 @@ async createOverlayPng(outputPath, { punches, roundSeconds, pace, topSpeedMph, s
   async processRoundVideo(inputPath, roundData) {
     const timestamp = Date.now();
 
+    const convertedPath = path.join(this.uploadsDir, `converted_${timestamp}.mp4`);
     const rawClipPath = path.join(this.uploadsDir, `clip_${timestamp}.mp4`);
     const overlayPath = path.join(this.uploadsDir, `overlay_${timestamp}.png`);
     const finalPath = path.join(this.uploadsDir, `final_${timestamp}.mp4`);
@@ -242,6 +283,14 @@ async createOverlayPng(outputPath, { punches, roundSeconds, pace, topSpeedMph, s
     const streak = Number(roundData?.currentStreak ?? roundData?.streak ?? 0);
 
     try {
+
+      // Convert WebM to MP4 first for better compatibility
+      let workingPath = inputPath;
+      if (inputPath.toLowerCase().endsWith('.webm')) {
+        await this.convertWebMToMp4(inputPath, convertedPath);
+        workingPath = convertedPath;
+      }
+
       const duration = await this.getDurationSeconds(inputPath);
 
       // Random start in [0, duration-clipSeconds]
@@ -271,9 +320,10 @@ async createOverlayPng(outputPath, { punches, roundSeconds, pace, topSpeedMph, s
       // Burn overlay + vertical export
       await this.burnOverlayAndFormat(rawClipPath, overlayPath, finalPath);
 
-      // cleanup
-      if (fs.existsSync(rawClipPath)) fs.unlinkSync(rawClipPath);
-      if (fs.existsSync(overlayPath)) fs.unlinkSync(overlayPath);
+      // Cleanup - include convertedPath
+      [convertedPath, rawClipPath, overlayPath].forEach(p => {
+        if (fs.existsSync(p)) fs.unlinkSync(p);
+      });
 
       return `/uploads/final_${timestamp}.mp4`;
     } catch (error) {
