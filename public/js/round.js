@@ -128,34 +128,50 @@ class RoundManager {
 
   startRecording() {
     this.recordedChunks = [];
-
+  
     const stream = this.camera.stream;
-
-    const options = { mimeType: 'video/webm;codecs=vp8' };
-
+  
+    // Prefer vp8 for smaller files / compatibility
+    let options = { mimeType: 'video/webm;codecs=vp8' };
+  
     if (!MediaRecorder.isTypeSupported(options.mimeType)) {
-      options.mimeType = 'video/webm';
+      options = { mimeType: 'video/webm' };
       if (!MediaRecorder.isTypeSupported(options.mimeType)) {
-        options.mimeType = 'video/mp4';
+        options = { mimeType: 'video/mp4' }; // last resort
       }
     }
-
+  
     this.recorder = new MediaRecorder(stream, options);
-
+  
+    const MAX_SECONDS = 8;
+    const TIMESLICE_MS = 1000;
+  
     this.recorder.ondataavailable = (event) => {
-      if (event.data.size > 0) {
+      if (event.data && event.data.size > 0) {
         this.recordedChunks.push(event.data);
-    
-        // ✅ Keep only the last 8 seconds (because recorder.start(1000))
-        const MAX_CHUNKS = 8;
-        if (this.recordedChunks.length > MAX_CHUNKS) {
-          this.recordedChunks.splice(0, this.recordedChunks.length - MAX_CHUNKS);
+  
+        // ✅ Keep only last ~8 seconds
+        while (this.recordedChunks.length > MAX_SECONDS) {
+          this.recordedChunks.shift();
         }
+  
+        // helpful logging
+        const totalBytes = this.recordedChunks.reduce((sum, b) => sum + (b?.size || 0), 0);
+        console.log('🎞️ rolling buffer', {
+          chunks: this.recordedChunks.length,
+          totalMB: (totalBytes / (1024 * 1024)).toFixed(2),
+          mime: this.recorder.mimeType
+        });
       }
     };
-    
-    this.recorder.start(1000);
-  }
+  
+    this.recorder.onerror = (e) => {
+      console.error('MediaRecorder error:', e);
+    };
+  
+    // ✅ CRITICAL: timeslice forces regular chunks (prevents “one giant blob”)
+    this.recorder.start(TIMESLICE_MS);
+  }  
 
   startTimer() {
     const timerEl = document.getElementById('timer');

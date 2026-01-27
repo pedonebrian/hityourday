@@ -13,7 +13,7 @@ class CameraManager {
           facingMode: 'user',
           width: { ideal: 640, max: 640 },
           height: { ideal: 480, max: 480 },
-          frameRate: { ideal: 30, max: 30 }
+          frameRate: { ideal: 24, max: 30 }
         },
         audio: false
       };
