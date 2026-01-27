@@ -91,6 +91,14 @@
             Punch count and timer update automatically. Use End Round to stop.
           </div>
 
+          <button id="end-round" class="btn-secondary" type="button">
+            End Round
+          </button>
+
+          <div id="timer" class="timer-display" role="status" aria-live="polite" aria-atomic="true">
+            0:00
+          </div>
+
           <!-- Use role=status and aria-live so screen readers get updates without being too noisy -->
           <div
             id="punch-count"
@@ -115,14 +123,6 @@
               Keep going
             </div>
           </div>
-
-          <div id="timer" class="timer-display" role="status" aria-live="polite" aria-atomic="true">
-            0:00
-          </div>
-
-          <button id="end-round" class="btn-secondary" type="button">
-            End Round
-          </button>
         </div>
       </section>
 

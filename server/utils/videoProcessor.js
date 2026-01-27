@@ -263,7 +263,7 @@ async createOverlayPng(outputPath, { punches, roundSeconds, pace, topSpeedMph, s
         start = 0;
       }
 
-      await this.extractFirstSeconds(uploadedPath, rawClipPath, 5);
+      await this.extractFirstSeconds(inputPath, rawClipPath, 5);
 
       // Overlay using full-round stats
       await this.createOverlayPng(overlayPath, { punches, roundSeconds, pace, topSpeedMph, streak });
