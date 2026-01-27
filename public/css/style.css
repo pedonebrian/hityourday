@@ -14,6 +14,22 @@ body {
   justify-content: center;
 }
 
+.skip-link {
+  position: absolute;
+  left: -999px;
+  top: 0;
+}
+.skip-link:focus {
+  left: 1rem;
+  top: 1rem;
+  z-index: 9999;
+}
+
+:focus-visible {
+  outline: 3px solid currentColor;
+  outline-offset: 3px;
+}
+
 .container {
   width: 100%;
   max-width: 640px;
@@ -439,7 +455,6 @@ p {
   font-weight: 700;
   font-size: 1rem;
   list-style: none;
-  outline: none;
   padding: 8px 0;
   transition: color 0.2s ease;
   position: relative;
@@ -575,4 +590,121 @@ p {
   .share-buttons button {
     max-width: 100%;
   }
+}
+
+/* ===== Accessibility additions ===== */
+
+/* 1) Screen-reader only utility (you use .sr-only in HTML) */
+.sr-only {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+}
+
+/* 2) Make keyboard focus very obvious everywhere */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+summary:focus-visible,
+[role="button"]:focus-visible {
+  outline: 3px solid #fff; /* currentColor can become red on red backgrounds */
+  outline-offset: 3px;
+}
+
+/* 3) Fix: you currently remove outline on summary (keyboard users lose focus) */
+.faq-item summary {
+  outline: none; /* remove this line entirely if you want */
+}
+
+/* Better: give summary a dedicated focus style */
+.faq-item summary:focus-visible {
+  outline: 3px solid #fff;
+  outline-offset: 4px;
+  border-radius: 8px;
+}
+
+/* 4) Make FAQ and links meet recommended tap target sizes */
+.faq-item summary {
+  min-height: 44px;           /* good mobile target */
+  display: flex;
+  align-items: center;
+}
+
+.ig-link {
+  text-decoration: underline; /* don’t rely on color alone */
+  text-decoration-thickness: 2px;
+}
+
+/* Provide visited state (helps orientation) */
+.ig-link:visited {
+  opacity: 0.9;
+}
+
+/* 5) Don’t “only-color” communicate state */
+#summary-speed {
+  /* keep the gold, but ensure it’s not the only cue (HTML label already helps) */
+  font-weight: 800;
+}
+
+/* 6) Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .spinner {
+    animation: none !important;
+  }
+
+  .btn-primary:hover {
+    transform: none !important;
+  }
+}
+
+/* 7) High contrast / forced colors support (Windows) */
+@media (forced-colors: active) {
+  .btn-primary,
+  .btn-secondary,
+  .btn {
+    forced-color-adjust: auto;
+    border: 1px solid ButtonText;
+    background: ButtonFace;
+    color: ButtonText;
+  }
+
+  .punch-display {
+    text-shadow: none !important;
+  }
+
+  .goal-pill,
+  .card,
+  .streak {
+    border: 1px solid CanvasText;
+  }
+}
+
+/* 8) Improve text spacing resilience (WCAG text spacing) */
+p, .tagline, .faq-item p {
+  line-height: 1.6;
+}
+
+/* 9) Make link hover/active not depend on subtle opacity alone */
+.ig-link:hover,
+.ig-link:focus-visible {
+  opacity: 1;
+}
+
+/* 10) Inputs: ensure focus doesn’t rely only on faint border */
+.input:focus-visible {
+  box-shadow: 0 0 0 4px rgba(255,255,255,0.2);
+  border-color: rgba(255,255,255,0.5);
 }

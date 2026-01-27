@@ -1,160 +1,225 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Hit Your Day - Motion comes before motivation</title>
-  <link rel="stylesheet" href="/css/style.css">
-  <link rel="icon" type="image/png" href="/images/hyd-logo.PNG">
+  <link rel="stylesheet" href="/css/style.css" />
+  <link rel="icon" type="image/png" href="/images/hyd-logo.PNG" />
+
+  <!-- Optional but helpful: respects OS dark/light without breaking contrast -->
+  <meta name="color-scheme" content="light dark" />
 </head>
+
 <body>
+  <!-- Skip link for keyboard users -->
+  <a class="skip-link" href="#main">Skip to main content</a>
+
   <div class="container">
-    <!-- Landing -->
-    <div id="landing" class="screen active">
-      <div class="landing-main">
-        <h1>HIT YOUR DAY</h1>
-        <p class="tagline">Motion comes before motivation. Small movement can change how you feel.</p>
-        <button id="start-round" class="btn-primary">Start Your Day</button>
-      </div>
+    <header class="site-header" aria-label="Hit Your Day">
+      <!-- Keep h1 as the page title; if you keep it inside landing, that’s fine too -->
+    </header>
 
-      <!-- Footer content (kept away from CTA) -->
-      <div class="landing-footer">
-        <details class="faq-item">
-          <summary>What is Hit Your Day?</summary>
-          <p>A frictionless daily habit. Throw punches for a short round, hit your goal, and build a streak.</p>
-        </details>
+    <main id="main" tabindex="-1">
+      <!-- Landing -->
+      <section id="landing" class="screen active" aria-labelledby="landing-title">
+        <div class="landing-main">
+          <h1 id="landing-title">HIT YOUR DAY</h1>
+          <p class="tagline">Motion comes before motivation. Small movement can change how you feel.</p>
 
-        <details class="faq-item">
-          <summary>Do you store my camera video?</summary>
-          <p>
-            We don’t store your raw camera feed in the database. After your round, we may generate a short shareable clip
-            (about 5 seconds) so you can download/share it.
+          <button id="start-round" class="btn-primary" type="button">
+            Start Your Day
+          </button>
+
+          <!-- Helpful consent/context for camera usage -->
+          <p class="sr-only" id="camera-note">
+            This app uses your camera to detect motion. You can end the round at any time.
           </p>
-        </details>
-
-        <details class="faq-item">
-          <summary>Why does it work best from a side angle?</summary>
-          <p>Side angle makes the punch motion clearer. Keep your full arm in frame and use good lighting.</p>
-        </details>
-
-        <details class="faq-item">
-          <summary>How do I keep my streak across devices?</summary>
-          <p>Enter your email after a round to link your streak to you (so it follows you on any device).</p>
-        </details>
-
-        <div class="landing-help">
-          Questions? DM us on Instagram:
-          <a class="ig-link" href="https://instagram.com/hityourday" target="_blank" rel="noopener">@hityourday</a>
         </div>
-      </div>
-    </div>
 
+        <!-- Footer content (kept away from CTA) -->
+        <div class="landing-footer" aria-label="Help and frequently asked questions">
+          <h2 class="sr-only">Frequently asked questions</h2>
 
-    <!-- Loading -->
-    <div id="loading" class="screen">
-      <p>Loading camera and detection...</p>
-      <div class="spinner"></div>
-    </div>
+          <details class="faq-item">
+            <summary>What is Hit Your Day?</summary>
+            <p>A frictionless daily habit. Throw punches for a short round, hit your goal, and build a streak.</p>
+          </details>
 
-    <!-- Active Round -->
-    <div id="round-active" class="screen">
-      <video id="camera-feed" autoplay playsinline muted></video>
+          <details class="faq-item">
+            <summary>Do you store my camera video?</summary>
+            <p>
+              We don’t store your raw camera feed. After your round, we may generate a short shareable clip
+              (about 5 seconds) so you can download or share it.
+            </p>
+          </details>
 
-      <div class="overlay">
-        <div id="punch-count" class="punch-display">0</div>
+          <details class="faq-item">
+            <summary>Why does it work best from a side angle?</summary>
+            <p>Side angle makes the punch motion clearer. Keep your full arm in frame and use good lighting.</p>
+          </details>
 
-        <!-- ✅ Better Goal UI (replace your old punch-target div with this) -->
-        <div id="goal-wrap" class="goal-wrap">
-          <div class="goal-pill">
-            <span class="goal-label">Today’s Goal</span>
-            <span class="goal-value"><span id="punch-target-value">100</span> punches</span>
+          <details class="faq-item">
+            <summary>How do I keep my streak across devices?</summary>
+            <p>Enter your email after a round to link your streak to you (so it follows you on any device).</p>
+          </details>
+
+          <p class="landing-help">
+            Questions? DM us on Instagram:
+            <a class="ig-link" href="https://instagram.com/hityourday" target="_blank" rel="noopener">
+              @hityourday
+              <span class="sr-only"> (opens in a new tab)</span>
+            </a>
+          </p>
+        </div>
+      </section>
+
+      <!-- Loading -->
+      <section id="loading" class="screen" aria-label="Loading" aria-live="polite">
+        <p>Loading camera and detection…</p>
+        <div class="spinner" aria-hidden="true"></div>
+      </section>
+
+      <!-- Active Round -->
+      <section id="round-active" class="screen" aria-label="Active round">
+        <!-- Provide text alternative for the live camera view -->
+        <video id="camera-feed" autoplay playsinline muted aria-label="Live camera feed"></video>
+
+        <!-- Live region for punch count updates -->
+        <div class="overlay">
+          <div class="sr-only" id="live-instructions">
+            Punch count and timer update automatically. Use End Round to stop.
           </div>
-          <div id="goal-status" class="goal-status">Keep going 👊</div>
-        </div>
 
-        <div id="timer" class="timer-display">0:00</div>
-        <button id="end-round" class="btn-secondary">End Round</button>
-      </div>
-    </div>
+          <!-- Use role=status and aria-live so screen readers get updates without being too noisy -->
+          <div
+            id="punch-count"
+            class="punch-display"
+            role="status"
+            aria-live="polite"
+            aria-atomic="true"
+          >
+            0
+          </div>
 
+          <div id="goal-wrap" class="goal-wrap" aria-label="Today’s goal">
+            <div class="goal-pill">
+              <span class="goal-label">Today’s Goal</span>
+              <span class="goal-value">
+                <span id="punch-target-value">100</span> punches
+              </span>
+            </div>
 
-    <!-- Processing -->
-    <div id="processing" class="screen">
-      <h2>Processing your round...</h2>
-      <p>Creating your shareable clip</p>
-      <div class="spinner"></div>
-    </div>
+            <!-- Status updates should also be in a live region -->
+            <div id="goal-status" class="goal-status" role="status" aria-live="polite" aria-atomic="true">
+              Keep going
+            </div>
+          </div>
 
-    <!-- Summary -->
-    <div id="summary" class="screen">
-      <h2>Round Complete</h2>
-      <div class="stats">
-        <div class="stat">
-          <span class="stat-value" id="summary-punches">0</span>
-          <span class="stat-label">Punches</span>
+          <div id="timer" class="timer-display" role="status" aria-live="polite" aria-atomic="true">
+            0:00
+          </div>
+
+          <button id="end-round" class="btn-secondary" type="button">
+            End Round
+          </button>
         </div>
-        <div class="stat">
-          <span class="stat-value" id="summary-time">0:00</span>
-          <span class="stat-label">Time</span>
-        </div>
-        <div class="stat">
-          <span class="stat-value" id="summary-pace">0</span>
-          <span class="stat-label">Pace</span>
-        </div>
-        <div class="stat">
+      </section>
+
+      <!-- Processing -->
+      <section id="processing" class="screen" aria-label="Processing" aria-live="polite">
+        <h2>Processing your round…</h2>
+        <p>Creating your shareable clip</p>
+        <div class="spinner" aria-hidden="true"></div>
+      </section>
+
+      <!-- Summary -->
+      <section id="summary" class="screen" aria-labelledby="summary-title">
+        <h2 id="summary-title">Round Complete</h2>
+
+        <!-- Consider a list structure for stats -->
+        <div class="stats" role="list" aria-label="Round stats">
+          <div class="stat" role="listitem">
+            <span class="stat-value" id="summary-punches">0</span>
+            <span class="stat-label">Punches</span>
+          </div>
+          <div class="stat" role="listitem">
+            <span class="stat-value" id="summary-time">0:00</span>
+            <span class="stat-label">Time</span>
+          </div>
+          <div class="stat" role="listitem">
+            <span class="stat-value" id="summary-pace">0</span>
+            <span class="stat-label">Pace</span>
+          </div>
+          <div class="stat" role="listitem">
             <span class="stat-value" id="summary-speed">--</span>
             <span class="stat-label">Top Speed</span>
           </div>
-      </div>
-      
-      <div class="streak">
-        <p>Current Streak: <strong id="current-streak">0</strong> days</p>
-      </div>
-
-      <!-- Share Section -->
-      <div id="share-section" style="display: none;">
-        <h3>Share Your Round</h3>
-        <video id="share-video-preview" controls playsinline class="share-preview"></video>
-        <div class="share-buttons">
-          <a id="download-video" class="btn-secondary" download>Download</a>
-          <button id="share-native" class="btn-primary">Share</button>
         </div>
-      </div>
 
-      <div id="email-save-card" class="card">
-        <div class="card-title">Save your streak</div>
-        <div class="card-subtitle">Enter your email to keep your streak across any device.</div>
-      
-        <div class="email-row">
-          <input id="email-input" class="input" type="email" placeholder="you@email.com" autocomplete="email" />
-          <button id="email-save-btn" class="btn btn-primary">Save</button>
+        <div class="streak" aria-label="Streak">
+          <p>Current Streak: <strong id="current-streak">0</strong> days</p>
         </div>
-      
-        <div id="email-save-msg" class="msg"></div>
-      </div>     
 
-      <button id="new-round" class="btn-primary btn-new-round">New Round</button>
+        <!-- Share Section -->
+        <section id="share-section" hidden aria-labelledby="share-title">
+          <h3 id="share-title">Share Your Round</h3>
+          <video id="share-video-preview" controls playsinline class="share-preview" aria-label="Shareable clip preview"></video>
+          <div class="share-buttons">
+            <a id="download-video" class="btn-secondary" download role="button">Download</a>
+            <button id="share-native" class="btn-primary" type="button">Share</button>
+          </div>
+        </section>
 
-      <div class="help-row">
-        Need help? DM us:
-        <a class="ig-link" href="https://instagram.com/hityourday" target="_blank" rel="noopener">@hityourday</a>
-      </div>      
-    </div>
+        <section id="email-save-card" class="card" aria-labelledby="save-title" aria-describedby="save-desc">
+          <h3 id="save-title" class="card-title">Save your streak</h3>
+          <p id="save-desc" class="card-subtitle">Enter your email to keep your streak across any device.</p>
+
+          <!-- Real label (placeholder is not a label) -->
+          <div class="email-row">
+            <label for="email-input" class="sr-only">Email address</label>
+            <input
+              id="email-input"
+              class="input"
+              type="email"
+              inputmode="email"
+              placeholder="you@email.com"
+              autocomplete="email"
+            />
+            <button id="email-save-btn" class="btn btn-primary" type="button">Save</button>
+          </div>
+
+          <!-- Message region that JS can update -->
+          <div id="email-save-msg" class="msg" role="status" aria-live="polite" aria-atomic="true"></div>
+        </section>
+
+        <button id="new-round" class="btn-primary btn-new-round" type="button">
+          New Round
+        </button>
+
+        <p class="help-row">
+          Need help? DM us:
+          <a class="ig-link" href="https://instagram.com/hityourday" target="_blank" rel="noopener">
+            @hityourday
+            <span class="sr-only"> (opens in a new tab)</span>
+          </a>
+        </p>
+      </section>
+    </main>
   </div>
 
-  <!-- MediaPipe Hands - Load synchronously -->
+  <!-- MediaPipe Hands -->
   <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@mediapipe/control_utils/control_utils.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js"></script>
-  
-  <!-- Wait for MediaPipe to load before starting app -->
+
   <script>
     window.addEventListener('load', () => {
       console.log('MediaPipe Hands available:', typeof Hands !== 'undefined');
     });
   </script>
-  
+
   <script type="module" src="/js/round.js"></script>
   <script type="module" src="/js/share.js"></script>
 </body>
