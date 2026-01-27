@@ -130,39 +130,51 @@ class RoundManager {
     this.recordedChunks = [];
     const stream = this.camera.stream;
   
-    // Try formats in order of preference
-    const formats = [
-      { mimeType: 'video/mp4', videoBitsPerSecond: 1500000 },
-      { mimeType: 'video/webm;codecs=vp8', videoBitsPerSecond: 1500000 },
-      { mimeType: 'video/webm', videoBitsPerSecond: 1500000 },
-      { mimeType: 'video/webm;codecs=vp9', videoBitsPerSecond: 1500000 }
-    ];
+    let options = { 
+      mimeType: 'video/mp4',
+      videoBitsPerSecond: 1500000
+    };
   
-    let options = formats[0]; // default
-    for (const format of formats) {
-      if (MediaRecorder.isTypeSupported(format.mimeType)) {
-        options = format;
-        console.log('✅ Using format:', format.mimeType);
-        break;
-      }
+    // Fallback to WebM if MP4 not supported
+    if (!MediaRecorder.isTypeSupported(options.mimeType)) {
+      options = { 
+        mimeType: 'video/webm;codecs=vp8',
+        videoBitsPerSecond: 1500000
+      };
     }
   
     this.recorder = new MediaRecorder(stream, options);
   
-    // Collect chunks
+    const MAX_SECONDS = 10; // Keep last 10 seconds
+    const TIMESLICE_MS = 1000;
+  
     this.recorder.ondataavailable = (event) => {
       if (event.data && event.data.size > 0) {
         this.recordedChunks.push(event.data);
+  
+        // Keep only last 10 seconds
+        while (this.recordedChunks.length > MAX_SECONDS) {
+          this.recordedChunks.shift();
+        }
+  
+        // Log every 5 seconds
+        if (this.recordedChunks.length % 5 === 0) {
+          const totalBytes = this.recordedChunks.reduce((sum, b) => sum + b.size, 0);
+          console.log('🎞️ buffer:', {
+            chunks: this.recordedChunks.length,
+            sizeMB: (totalBytes / (1024 * 1024)).toFixed(2)
+          });
+        }
       }
     };
   
     this.recorder.onerror = (e) => {
-      console.error('❌ MediaRecorder error:', e);
+      console.error('MediaRecorder error:', e);
     };
   
-    // Start without timeslice for complete valid blob
-    this.recorder.start();
-    console.log('📹 Recording started');
+    // CRITICAL: Use timeslice for rolling buffer
+    this.recorder.start(TIMESLICE_MS);
+    console.log('📹 Recording with 10-second rolling buffer');
   }
 
   startTimer() {
