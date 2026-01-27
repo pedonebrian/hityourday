@@ -131,13 +131,22 @@ class RoundManager {
   
     const stream = this.camera.stream;
   
-    // Prefer vp8 for smaller files / compatibility
-    let options = { mimeType: 'video/webm;codecs=vp8' };
+    // Prefer vp8 for smaller files / compatibility WITH BITRATE LIMIT
+    let options = { 
+      mimeType: 'video/webm;codecs=vp8',
+      videoBitsPerSecond: 2500000  // 2.5 Mbps = ~1.8 MB for 8 seconds
+    };
   
     if (!MediaRecorder.isTypeSupported(options.mimeType)) {
-      options = { mimeType: 'video/webm' };
+      options = { 
+        mimeType: 'video/webm',
+        videoBitsPerSecond: 2500000
+      };
       if (!MediaRecorder.isTypeSupported(options.mimeType)) {
-        options = { mimeType: 'video/mp4' }; // last resort
+        options = { 
+          mimeType: 'video/mp4',
+          videoBitsPerSecond: 2500000
+        };
       }
     }
   
@@ -169,9 +178,9 @@ class RoundManager {
       console.error('MediaRecorder error:', e);
     };
   
-    // ✅ CRITICAL: timeslice forces regular chunks (prevents “one giant blob”)
+    // ✅ CRITICAL: timeslice forces regular chunks (prevents "one giant blob")
     this.recorder.start(TIMESLICE_MS);
-  }  
+  } 
 
   startTimer() {
     const timerEl = document.getElementById('timer');
