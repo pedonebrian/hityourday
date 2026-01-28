@@ -5,6 +5,7 @@ import fs from 'fs';
 import { fileURLToPath } from 'url';
 import { query } from '../db.js';
 import VideoProcessor from '../utils/videoProcessor.js';
+import { getOrCreateUserIdByDevice, resolveUserIdByDevice } from '../utils/userIdentity.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -27,33 +28,6 @@ const upload = multer({
   storage,
   limits: { fileSize: 50 * 1024 * 1024 }
 });
-
-// Resolve user_id from deviceId (supports email-linked devices + legacy fallback)
-async function resolveUserId(deviceId) {
-  // Preferred: user_devices mapping
-  const byMap = await query(
-    `SELECT user_id
-     FROM user_devices
-     WHERE device_id = $1
-     LIMIT 1`,
-    [deviceId]
-  );
-
-  if (byMap.rows.length) return byMap.rows[0].user_id;
-
-  // Fallback: legacy users.device_id (for old rows / before linking)
-  const legacy = await query(
-    `SELECT id as user_id
-     FROM users
-     WHERE device_id = $1
-     LIMIT 1`,
-    [deviceId]
-  );
-
-  if (legacy.rows.length) return legacy.rows[0].user_id;
-
-  return null;
-}
 
 async function computeCurrentStreak(userId) {
   const result = await query(
@@ -88,43 +62,6 @@ async function computeCurrentStreak(userId) {
   }
 
   return streak;
-}
-
-async function getOrCreateUserIdByDevice(deviceId) {
-  // 1) If this device is already mapped, use that user_id
-  const existing = await query(
-    `SELECT user_id FROM user_devices WHERE device_id = $1 LIMIT 1`,
-    [deviceId]
-  );
-  if (existing.rows.length) return existing.rows[0].user_id;
-
-  // 2) If a legacy user exists with users.device_id = deviceId, use it
-  const legacy = await query(
-    `SELECT id FROM users WHERE device_id = $1 LIMIT 1`,
-    [deviceId]
-  );
-
-  let userId;
-  if (legacy.rows.length) {
-    userId = legacy.rows[0].id;
-  } else {
-    // 3) Otherwise create a new anonymous user row with device_id (required by schema)
-    const created = await query(
-      `INSERT INTO users (device_id) VALUES ($1) RETURNING id`,
-      [deviceId]
-    );
-    userId = created.rows[0].id;
-  }
-
-  // 4) Ensure mapping exists
-  await query(
-    `INSERT INTO user_devices (user_id, device_id)
-     VALUES ($1, $2)
-     ON CONFLICT (device_id) DO UPDATE SET user_id = EXCLUDED.user_id`,
-    [userId, deviceId]
-  );
-
-  return userId;
 }
 
 router.post(
@@ -254,7 +191,7 @@ router.get('/history/:deviceId', async (req, res) => {
     const { deviceId } = req.params;
     const limit = parseInt(req.query.limit) || 30;
 
-    const userId = await resolveUserId(deviceId);
+    const userId = await resolveUserIdByDevice(deviceId);
     if (!userId) return res.json([]);
 
     const result = await query(
@@ -277,7 +214,7 @@ router.get('/today/:deviceId', async (req, res) => {
   try {
     const { deviceId } = req.params;
 
-    const userId = await resolveUserId(deviceId);
+    const userId = await resolveUserIdByDevice(deviceId);
     if (!userId) {
       return res.json({ rounds_today: 0, total_punches: 0, avg_pace: 0 });
     }

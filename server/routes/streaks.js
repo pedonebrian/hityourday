@@ -1,44 +1,8 @@
 import express from 'express';
 import { query } from '../db.js';
+import { getOrCreateUserIdByDevice } from '../utils/userIdentity.js';
 
 const router = express.Router();
-
-async function getOrCreateUserIdByDevice(deviceId) {
-  // 1) If this device is already mapped, use that user_id
-  const existing = await query(
-    `SELECT user_id FROM user_devices WHERE device_id = $1 LIMIT 1`,
-    [deviceId]
-  );
-  if (existing.rows.length) return existing.rows[0].user_id;
-
-  // 2) If a legacy user exists with users.device_id = deviceId, use it
-  const legacy = await query(
-    `SELECT id FROM users WHERE device_id = $1 LIMIT 1`,
-    [deviceId]
-  );
-
-  let userId;
-  if (legacy.rows.length) {
-    userId = legacy.rows[0].id;
-  } else {
-    // 3) Otherwise create a new anonymous user row
-    const created = await query(
-      `INSERT INTO users (device_id) VALUES ($1) RETURNING id`,
-      [deviceId]
-    );
-    userId = created.rows[0].id;
-  }
-
-  // 4) Ensure mapping exists
-  await query(
-    `INSERT INTO user_devices (user_id, device_id)
-     VALUES ($1, $2)
-     ON CONFLICT (device_id) DO UPDATE SET user_id = EXCLUDED.user_id`,
-    [userId, deviceId]
-  );
-
-  return userId;
-}
 
 // Get current streak for user (by deviceId -> userId)
 router.get('/:deviceId', async (req, res) => {

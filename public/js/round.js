@@ -25,10 +25,75 @@ class RoundManager {
     this.recordedChunks = [];
     this.startTime = null;
     this.timerInterval = null;
-    this.deviceId = this.getOrCreateDeviceId();
+    this.deviceId = this.getDeviceIdFromCookie(); // may be null on new device
     this.todayTarget = DAILY_TARGET_PUNCHES;
 
   }
+
+  setRecoverUI(state, text = '') {
+    const btn = document.getElementById('recover-email-btn');
+    const msg = document.getElementById('recover-msg');
+  
+    if (btn) btn.disabled = state === 'loading';
+  
+    if (msg) {
+      msg.classList.remove('success', 'error');
+      if (state === 'success') msg.classList.add('success');
+      if (state === 'error') msg.classList.add('error');
+      msg.textContent = text;
+    }
+  }
+  
+  bindRecovery() {
+    const card = document.getElementById('recover-card');
+    const btn = document.getElementById('recover-email-btn');
+    const input = document.getElementById('recover-email-input');
+  
+    if (!card || !btn || !input) return;
+  
+    // If they already saved an email, prefill it
+    const existing = localStorage.getItem('hityourday_email');
+    if (existing) input.value = existing;
+  
+    btn.addEventListener('click', async () => {
+      const email = input.value.trim().toLowerCase();
+      if (!email || !email.includes('@')) {
+        this.setRecoverUI('error', 'Please enter a valid email.');
+        input.focus();
+        return;
+      }
+  
+      // Make sure this device has an ID cookie now
+      this.ensureDeviceId();
+  
+      this.setRecoverUI('loading', 'Loading…');
+  
+      try {
+        // ✅ Reuse your existing link-email endpoint
+        // It already maps device -> email user and moves rounds.
+        const res = await fetch('/api/users/link-email', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify({ deviceId: this.deviceId, email })
+        });
+  
+        const data = await res.json();
+        if (!res.ok) throw new Error(data?.error || 'Failed');
+  
+        localStorage.setItem('hityourday_email', email);
+  
+        // Hide the card + refresh UI
+        card.setAttribute('hidden', 'true');
+        this.setRecoverUI('success', 'Loaded ✅');
+  
+        await this.loadStreak();
+      } catch (e) {
+        this.setRecoverUI('error', 'Could not load. Try again.');
+      }
+    });
+  }
+  
 
   getDailyGoal(currentStreak) {
     const base = DAILY_TARGET_PUNCHES;   // your config base (e.g., 100)
@@ -55,30 +120,26 @@ class RoundManager {
   }
   
 
-  getOrCreateDeviceId() {
+  getDeviceIdFromCookie() {
     const KEY = 'hityourday_device_id';
   
-    const getCookie = (name) => {
-      const m = document.cookie.match(new RegExp('(?:^|; )' + name + '=([^;]*)'));
-      return m ? decodeURIComponent(m[1]) : null;
-    };
+    const m = document.cookie.match(new RegExp('(?:^|; )' + KEY + '=([^;]*)'));
+    return m ? decodeURIComponent(m[1]) : null;
+  }
   
-    const setCookie = (name, value) => {
-      // Secure only when https, otherwise cookie won't set on localhost
-      const secure = window.location.protocol === 'https:' ? '; Secure' : '';
-      document.cookie =
-        `${name}=${encodeURIComponent(value)}; Max-Age=31536000; Path=/; SameSite=Lax${secure}`;
-    };
+  ensureDeviceId() {
+    if (this.deviceId) return this.deviceId;
   
-    let id = getCookie(KEY);
+    const KEY = 'hityourday_device_id';
+    const secure = window.location.protocol === 'https:' ? '; Secure' : '';
   
-    if (!id) {
-      id = 'device_' + Date.now() + '_' + Math.random().toString(36).slice(2, 11);
-      setCookie(KEY, id);
-    }
+    const id = 'device_' + Date.now() + '_' + Math.random().toString(36).slice(2, 11);
   
+    document.cookie = `${KEY}=${encodeURIComponent(id)}; Max-Age=31536000; Path=/; SameSite=Lax${secure}`;
+    this.deviceId = id;
     return id;
   }
+  
   
 
   // Email UI helper
@@ -116,6 +177,8 @@ class RoundManager {
 
       this.setEmailUI('saving', 'Saving…');
 
+      this.ensureDeviceId();
+
       try {
         const res = await fetch('/api/users/link-email', {
           method: 'POST',
@@ -149,6 +212,8 @@ class RoundManager {
       // Init detector
       await this.detector.init();
       await new Promise(resolve => setTimeout(resolve, 500));
+
+      this.ensureDeviceId();
 
       await this.loadStreak();
   
@@ -350,6 +415,8 @@ class RoundManager {
   }
 
   saveRound(punchCount, durationSeconds, pace, topSpeedMph, videoBlob) {
+    this.ensureDeviceId();
+
     const formData = new FormData();
     formData.append('deviceId', this.deviceId);
     formData.append('punchCount', punchCount);
@@ -461,13 +528,39 @@ class RoundManager {
       console.error('Error loading streak:', error);
     }
   }
+
+  async maybeShowRecovery() {
+    const savedEmail = localStorage.getItem('hityourday_email');
+    const card = document.getElementById('recover-card');
+  
+    if (!card) return;
+  
+    // Show recover if:
+    // - no device cookie yet (new device)
+    // - AND we have a saved email (so we can suggest continuing)
+    if (!this.deviceId && savedEmail) {
+      card.removeAttribute('hidden');
+  
+      const input = document.getElementById('recover-email-input');
+      if (input && !input.value) input.value = savedEmail;
+    }
+  }
+  
 }
 
 // Initialize on page load
 window.addEventListener('DOMContentLoaded', () => {
   const manager = new RoundManager();
+
   manager.bindEmailSave();
-  manager.loadStreak();
+  manager.bindRecovery();
+
+  // Only loads streak if we already have a device cookie
+  if (manager.deviceId) {
+    manager.loadStreak();
+  }
+
+  manager.maybeShowRecovery();
 
   document.getElementById('start-round').addEventListener('click', () => {
     document.getElementById('landing').style.display = 'none';
