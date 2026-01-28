@@ -808,4 +808,12 @@
     opacity: .8;
     font-size: .95rem;
   }
+
+  /* Landing Page Goal */
+  .landing-goal {
+    margin-top: 0.75rem;
+    opacity: 0.9;
+    font-size: 1rem;
+  }
+  
   

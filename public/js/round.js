@@ -56,13 +56,30 @@ class RoundManager {
   
 
   getOrCreateDeviceId() {
-    let id = localStorage.getItem('hityourday_device_id');
+    const KEY = 'hityourday_device_id';
+  
+    const getCookie = (name) => {
+      const m = document.cookie.match(new RegExp('(?:^|; )' + name + '=([^;]*)'));
+      return m ? decodeURIComponent(m[1]) : null;
+    };
+  
+    const setCookie = (name, value) => {
+      // Secure only when https, otherwise cookie won't set on localhost
+      const secure = window.location.protocol === 'https:' ? '; Secure' : '';
+      document.cookie =
+        `${name}=${encodeURIComponent(value)}; Max-Age=31536000; Path=/; SameSite=Lax${secure}`;
+    };
+  
+    let id = getCookie(KEY);
+  
     if (!id) {
-      id = 'device_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
-      localStorage.setItem('hityourday_device_id', id);
+      id = 'device_' + Date.now() + '_' + Math.random().toString(36).slice(2, 11);
+      setCookie(KEY, id);
     }
+  
     return id;
   }
+  
 
   // Email UI helper
   setEmailUI(state, text = '') {
@@ -103,8 +120,10 @@ class RoundManager {
         const res = await fetch('/api/users/link-email', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
           body: JSON.stringify({ deviceId: this.deviceId, email })
         });
+        
 
         const data = await res.json();
         if (!res.ok) throw new Error(data?.error || 'Failed');
@@ -343,6 +362,8 @@ class RoundManager {
     return new Promise((resolve, reject) => {
       const xhr = new XMLHttpRequest();
       xhr.open('POST', '/api/rounds');
+      xhr.withCredentials = true;
+
   
       // Real upload progress
       xhr.upload.onprogress = (evt) => {
@@ -414,7 +435,9 @@ class RoundManager {
 
   async loadStreak() {
     try {
-      const response = await fetch(`/api/streaks/${this.deviceId}`);
+      const response = await fetch(`/api/streaks/${this.deviceId}`, {
+        credentials: 'include'
+      });      
       const data = await response.json();
 
       const streak = Number(data.currentStreak || 0);
@@ -426,8 +449,14 @@ class RoundManager {
       const targetEl = document.getElementById('punch-target-value');
       if (targetEl) targetEl.textContent = this.todayTarget;
 
-      // refresh goal status text based on current punches
-      this.updatePunchCount(this.detector?.punchCount || 0);
+      const landingEl = document.getElementById('landing-goal-value');
+      if (landingEl) landingEl.textContent = this.todayTarget;
+
+      const roundActiveVisible = document.getElementById('round-active')?.style.display === 'block';
+      if (roundActiveVisible) {
+        this.updatePunchCount(this.detector?.punchCount || 0);
+      }
+
     } catch (error) {
       console.error('Error loading streak:', error);
     }
@@ -438,6 +467,7 @@ class RoundManager {
 window.addEventListener('DOMContentLoaded', () => {
   const manager = new RoundManager();
   manager.bindEmailSave();
+  manager.loadStreak();
 
   document.getElementById('start-round').addEventListener('click', () => {
     document.getElementById('landing').style.display = 'none';

@@ -38,7 +38,9 @@ async function getOrCreateUserIdByDevice(deviceId) {
 
 router.post('/link-email', async (req, res) => {
   try {
-    const { deviceId, email } = req.body || {};
+    const { deviceId: bodyDeviceId, email } = req.body || {};
+    const deviceId = bodyDeviceId || req.cookies?.hityourday_device_id;
+
 
     if (!deviceId || !email) {
       return res.status(400).json({ error: 'deviceId and email are required' });

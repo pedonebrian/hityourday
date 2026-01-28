@@ -43,7 +43,7 @@ async function getOrCreateUserIdByDevice(deviceId) {
 // Get current streak for user (by deviceId -> userId)
 router.get('/:deviceId', async (req, res) => {
   try {
-    const { deviceId } = req.params;
+    const deviceId = req.params.deviceId || req.cookies?.hityourday_device_id;
 
     // ✅ Create mapping if missing
     const userId = await getOrCreateUserIdByDevice(deviceId);

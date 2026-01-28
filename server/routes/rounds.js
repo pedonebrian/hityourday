@@ -163,7 +163,7 @@ router.post(
     let tempVideoPath = null;
 
     try {
-      const deviceId = req.body.deviceId;
+      const deviceId = req.body.deviceId || req.cookies?.hityourday_device_id;
 
       const punchCount = Number(req.body.punchCount);
       const durationSeconds = Number(req.body.durationSeconds);
