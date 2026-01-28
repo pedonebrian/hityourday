@@ -207,7 +207,7 @@ async createOverlayPng(outputPath, { punches, roundSeconds, pace, topSpeedMph, s
   if (Number.isFinite(s) && s > 1) {
     ctx.font = '900 46px Arial';
     ctx.fillStyle = 'rgba(255,255,255,0.95)';
-    ctx.fillText(`🔥 ${s} DAY STREAK`, W / 2, cardY + 525);
+    ctx.fillText(`${s} DAY STREAK`, W / 2, cardY + 525);
   }
 
   // BOTTOM BRAND
