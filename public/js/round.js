@@ -26,7 +26,17 @@ class RoundManager {
     this.startTime = null;
     this.timerInterval = null;
     this.deviceId = this.getOrCreateDeviceId();
+    this.todayTarget = DAILY_TARGET_PUNCHES;
+
   }
+
+  getDailyGoal(currentStreak) {
+    const base = DAILY_TARGET_PUNCHES;   // your config base (e.g., 100)
+    const extraPerDay = 10;
+    const streak = Number(currentStreak || 0);
+    return base + Math.max(0, (streak - 1) * extraPerDay);
+  }
+  
 
   setProcessing(stepText, percent = null, detail = '') {
     const statusEl = document.getElementById('processing-status');
@@ -120,6 +130,8 @@ class RoundManager {
       // Init detector
       await this.detector.init();
       await new Promise(resolve => setTimeout(resolve, 500));
+
+      await this.loadStreak();
   
       // Start detection
       this.startTime = Date.now();
@@ -213,7 +225,7 @@ class RoundManager {
 
     const wrap = document.getElementById('goal-wrap');
     const status = document.getElementById('goal-status');
-    const target = DAILY_TARGET_PUNCHES;
+    const target = this.todayTarget ?? DAILY_TARGET_PUNCHES;
 
     if (count >= target) {
       el?.classList.add('hit-target');
@@ -404,7 +416,18 @@ class RoundManager {
     try {
       const response = await fetch(`/api/streaks/${this.deviceId}`);
       const data = await response.json();
-      document.getElementById('current-streak').textContent = data.currentStreak;
+
+      const streak = Number(data.currentStreak || 0);
+      document.getElementById('current-streak').textContent = streak;
+
+      // 🔥 dynamic goal
+      this.todayTarget = this.getDailyGoal(streak);
+
+      const targetEl = document.getElementById('punch-target-value');
+      if (targetEl) targetEl.textContent = this.todayTarget;
+
+      // refresh goal status text based on current punches
+      this.updatePunchCount(this.detector?.punchCount || 0);
     } catch (error) {
       console.error('Error loading streak:', error);
     }
