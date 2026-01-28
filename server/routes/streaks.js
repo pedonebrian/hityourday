@@ -3,30 +3,41 @@ import { query } from '../db.js';
 
 const router = express.Router();
 
-async function resolveUserId(deviceId) {
-  // Preferred: user_devices mapping (supports multiple devices per user)
-  const byMap = await query(
-    `SELECT user_id
-     FROM user_devices
-     WHERE device_id = $1
-     LIMIT 1`,
+async function getOrCreateUserIdByDevice(deviceId) {
+  // 1) If this device is already mapped, use that user_id
+  const existing = await query(
+    `SELECT user_id FROM user_devices WHERE device_id = $1 LIMIT 1`,
     [deviceId]
   );
+  if (existing.rows.length) return existing.rows[0].user_id;
 
-  if (byMap.rows.length) return byMap.rows[0].user_id;
-
-  // Fallback: legacy users.device_id
+  // 2) If a legacy user exists with users.device_id = deviceId, use it
   const legacy = await query(
-    `SELECT id as user_id
-     FROM users
-     WHERE device_id = $1
-     LIMIT 1`,
+    `SELECT id FROM users WHERE device_id = $1 LIMIT 1`,
     [deviceId]
   );
 
-  if (legacy.rows.length) return legacy.rows[0].user_id;
+  let userId;
+  if (legacy.rows.length) {
+    userId = legacy.rows[0].id;
+  } else {
+    // 3) Otherwise create a new anonymous user row
+    const created = await query(
+      `INSERT INTO users (device_id) VALUES ($1) RETURNING id`,
+      [deviceId]
+    );
+    userId = created.rows[0].id;
+  }
 
-  return null;
+  // 4) Ensure mapping exists
+  await query(
+    `INSERT INTO user_devices (user_id, device_id)
+     VALUES ($1, $2)
+     ON CONFLICT (device_id) DO UPDATE SET user_id = EXCLUDED.user_id`,
+    [userId, deviceId]
+  );
+
+  return userId;
 }
 
 // Get current streak for user (by deviceId -> userId)
@@ -34,10 +45,8 @@ router.get('/:deviceId', async (req, res) => {
   try {
     const { deviceId } = req.params;
 
-    const userId = await resolveUserId(deviceId);
-    if (!userId) {
-      return res.json({ currentStreak: 0, longestStreak: 0 });
-    }
+    // ✅ Create mapping if missing
+    const userId = await getOrCreateUserIdByDevice(deviceId);
 
     // Grab distinct active dates for this user
     const result = await query(
@@ -60,12 +69,12 @@ router.get('/:deviceId', async (req, res) => {
 
     const dateSet = new Set(dates.map(d => d.getTime()));
 
-    // Current streak: count back from today until a miss
+    // Current streak
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
     let currentStreak = 0;
-    for (let i = 0; i < 3650; i++) { // hard cap for safety
+    for (let i = 0; i < 3650; i++) {
       const check = new Date(today);
       check.setDate(today.getDate() - i);
       check.setHours(0, 0, 0, 0);
@@ -74,13 +83,12 @@ router.get('/:deviceId', async (req, res) => {
       else break;
     }
 
-    // Longest streak: scan sorted dates
+    // Longest streak
     let longestStreak = 1;
     let tempStreak = 1;
 
     for (let i = 0; i < dates.length - 1; i++) {
       const dayDiff = Math.round((dates[i].getTime() - dates[i + 1].getTime()) / (1000 * 60 * 60 * 24));
-
       if (dayDiff === 1) {
         tempStreak++;
         longestStreak = Math.max(longestStreak, tempStreak);
