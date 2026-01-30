@@ -9,6 +9,7 @@ import roundsRouter from './routes/rounds.js';
 import streaksRouter from './routes/streaks.js';
 import usersRouter from './routes/users.js';
 import VideoProcessor from './utils/videoProcessor.js';
+import adminRouter from "./routes/admin.js";
 
 dotenv.config();
 
@@ -58,6 +59,7 @@ app.use('/uploads', express.static(path.join(__dirname, '../public/uploads')));
 app.use('/api/rounds', roundsRouter);
 app.use('/api/streaks', streaksRouter);
 app.use('/api/users', usersRouter);
+app.use("/api/admin", adminRouter);
 
 // Health check
 app.get('/api/health', (req, res) => {

@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Hit Your Day — Admin</title>
+  <link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
+  <div class="container">
+    <main class="screen active" style="text-align:left; max-width:640px; margin:0 auto;">
+      <h1 style="margin-bottom: 12px;">Admin</h1>
+      <p class="muted" style="margin-bottom: 20px;">Basic stats (all-time)</p>
+
+      <div class="card" style="padding:16px; margin-bottom: 12px;">
+        <div class="muted" style="margin-bottom:6px;">Total Punches</div>
+        <div id="totalPunches" style="font-size: 40px; font-weight: 700;">—</div>
+      </div>
+
+      <div class="card" style="padding:16px; margin-bottom: 20px;">
+        <div class="muted" style="margin-bottom:6px;">Unique Users (with email)</div>
+        <div id="uniqueEmailUsers" style="font-size: 40px; font-weight: 700;">—</div>
+      </div>
+
+      <button id="refresh" class="btn-primary" type="button">Refresh</button>
+      <p id="msg" class="muted" style="margin-top: 10px;"></p>
+    </main>
+  </div>
+
+  <script>
+    // Simple prompt-based auth (not fancy, but works).
+    // You can replace this with a proper login later.
+    let adminToken = localStorage.getItem("hyd_admin_token") || "";
+
+    async function loadStats() {
+      const msg = document.getElementById("msg");
+      msg.textContent = "Loading…";
+
+      if (!adminToken) {
+        adminToken = prompt("Enter admin token:");
+        if (adminToken) localStorage.setItem("hyd_admin_token", adminToken);
+      }
+
+      try {
+        const res = await fetch("/api/admin/stats", {
+          headers: { "x-admin-token": adminToken }
+        });
+
+        if (!res.ok) {
+          if (res.status === 401) {
+            localStorage.removeItem("hyd_admin_token");
+            adminToken = "";
+            msg.textContent = "Unauthorized. Refresh and try again.";
+            return;
+          }
+          const err = await res.json().catch(() => ({}));
+          msg.textContent = err.error || "Failed to load stats.";
+          return;
+        }
+
+        const data = await res.json();
+        document.getElementById("totalPunches").textContent = (data.totalPunches ?? 0).toLocaleString();
+        document.getElementById("uniqueEmailUsers").textContent = (data.uniqueEmailUsers ?? 0).toLocaleString();
+        msg.textContent = "Updated.";
+      } catch (e) {
+        msg.textContent = "Network error.";
+      }
+    }
+
+    document.getElementById("refresh").addEventListener("click", loadStats);
+    loadStats();
+  </script>
+</body>
+</html>
