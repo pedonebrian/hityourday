@@ -41,10 +41,12 @@
 
           <!-- ✅ Recovery (ONLY shows if device not recognized) -->
           <div id="recover-card" class="recover-card" hidden>
-            <p><strong>Continue your streak?</strong></p>
-            <p class="muted">Enter your email to load your progress.</p>
-
-            <div class="email-row">
+            <h2 class="recover-title">Welcome back 👋</h2>
+            <p class="recover-subtitle">
+              Enter your email to pick up your streak.
+            </p>
+          
+            <div class="recover-input-group">
               <label for="recover-email-input" class="sr-only">Email address</label>
               <input
                 id="recover-email-input"
@@ -53,13 +55,13 @@
                 placeholder="you@email.com"
                 autocomplete="email"
               />
-              <button id="recover-email-btn" class="btn-secondary" type="button">
-                Load
+              <button id="recover-email-btn" type="button">
+                Continue
               </button>
             </div>
-
+          
             <div id="recover-msg" class="msg" aria-live="polite"></div>
-          </div>
+          </div>          
 
           <div id="welcome-back" class="welcome-back" hidden aria-live="polite"></div>
 

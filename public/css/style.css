@@ -824,4 +824,66 @@
     background: rgba(255,255,255,0.06);
     font-weight: 600;
   }
+
+  .recover-card {
+    margin-top: 28px;
+    padding: 20px;
+    border-radius: 18px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.12);
+    text-align: left;
+  }
+  
+  .recover-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin-bottom: 6px;
+  }
+  
+  .recover-subtitle {
+    font-size: 0.95rem;
+    color: rgba(255,255,255,0.7);
+    margin-bottom: 14px;
+  }
+  
+  .recover-input-group {
+    display: flex;
+    gap: 10px;
+  }
+  
+  .recover-input-group input {
+    flex: 1;
+    height: 48px;
+    padding: 0 14px;
+    border-radius: 10px;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.2);
+    color: #fff;
+    font-size: 0.95rem;
+  }
+  
+  .recover-input-group input::placeholder {
+    color: rgba(255,255,255,0.45);
+  }
+  
+  .recover-input-group button {
+    height: 48px;
+    padding: 0 18px;
+    border-radius: 12px;
+    border: none;
+    background: #fff;
+    color: #000;
+    font-weight: 700;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: transform 0.05s ease, opacity 0.15s ease;
+  }
+  
+  .recover-input-group button:hover {
+    opacity: 0.9;
+  }
+  
+  .recover-input-group button:active {
+    transform: scale(0.97);
+  }  
   
