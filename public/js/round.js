@@ -30,6 +30,50 @@ class RoundManager {
 
   }
 
+  async loadTodayStats() {
+    try {
+      const res = await fetch('/api/rounds/today', { credentials: 'include' });
+      const stats = await res.json();
+  
+      const el = document.getElementById('landing-today');
+      if (!el) return;
+  
+      const rounds = Number(stats.rounds_today || 0);
+      const punches = Number(stats.total_punches || 0);
+      el.textContent = rounds > 0
+        ? `Today: ${rounds} round${rounds === 1 ? '' : 's'}, ${punches} punches`
+        : `No rounds yet today.`;
+    } catch (e) {
+      console.error('Error loading today stats:', e);
+    }
+  }
+  
+  async loadHistory(limit = 10) {
+    try {
+      const res = await fetch(`/api/rounds/history?limit=${limit}`, { credentials: 'include' });
+      const rows = await res.json();
+  
+      const el = document.getElementById('landing-history');
+      if (!el) return;
+  
+      if (!rows?.length) {
+        el.textContent = '';
+        return;
+      }
+  
+      const items = rows.slice(0, limit).map(r => {
+        const d = new Date(r.completed_at || r.date);
+        const punches = r.punch_count ?? 0;
+        return `${d.toLocaleDateString()}: ${punches} punches`;
+      });
+  
+      el.innerHTML = `<ul class="history-list">${items.map(x => `<li>${x}</li>`).join('')}</ul>`;
+    } catch (e) {
+      console.error('Error loading history:', e);
+    }
+  }
+  
+
   setRecoverUI(state, text = '') {
     const btn = document.getElementById('recover-email-btn');
     const msg = document.getElementById('recover-msg');
@@ -75,19 +119,26 @@ class RoundManager {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           credentials: 'include',
-          body: JSON.stringify({ deviceId: this.deviceId, email })
+          body: JSON.stringify({ email })
         });
-  
+        
         const data = await res.json();
         if (!res.ok) throw new Error(data?.error || 'Failed');
-  
+        
         localStorage.setItem('hityourday_email', email);
-  
-        // Hide the card + refresh UI
+        
+        // refresh deviceId in memory (cookie now set)
+        this.deviceId = this.getDeviceIdFromCookie() || data.deviceId;
+        
         card.setAttribute('hidden', 'true');
         this.setRecoverUI('success', 'Loaded ✅');
-  
-        await this.loadStreak();
+
+        const streak = await this.loadStreak();
+        this.showWelcomeBack(streak);
+        
+        // ✅ now load homepage data
+        await this.loadTodayStats();
+        await this.loadHistory();
       } catch (e) {
         this.setRecoverUI('error', 'Could not load. Try again.');
       }
@@ -303,6 +354,25 @@ class RoundManager {
     }, 1000);
   }
 
+  showWelcomeBack(streak) {
+    const el = document.getElementById('welcome-back');
+    if (!el) return;
+  
+    const s = Number(streak || 0);
+    el.textContent = s > 0
+      ? `Welcome back — streak: ${s} 🔥`
+      : `Welcome back 👊`;
+  
+    el.removeAttribute('hidden');
+  }
+  
+  hideWelcomeBack() {
+    const el = document.getElementById('welcome-back');
+    if (!el) return;
+    el.setAttribute('hidden', 'true');
+    el.textContent = '';
+  }  
+
   updatePunchCount(count) {
     const el = document.getElementById('punch-count');
     if (el) el.textContent = count;
@@ -502,9 +572,9 @@ class RoundManager {
 
   async loadStreak() {
     try {
-      const response = await fetch(`/api/streaks/${this.deviceId}`, {
+      const response = await fetch(`/api/streaks`, {
         credentials: 'include'
-      });      
+      });            
       const data = await response.json();
 
       const streak = Number(data.currentStreak || 0);
@@ -524,27 +594,25 @@ class RoundManager {
         this.updatePunchCount(this.detector?.punchCount || 0);
       }
 
+      return streak;
+
     } catch (error) {
       console.error('Error loading streak:', error);
     }
   }
 
   async maybeShowRecovery() {
-    const savedEmail = localStorage.getItem('hityourday_email');
     const card = document.getElementById('recover-card');
-  
     if (!card) return;
   
-    // Show recover if:
-    // - no device cookie yet (new device)
-    // - AND we have a saved email (so we can suggest continuing)
-    if (!this.deviceId && savedEmail) {
+    if (!this.deviceId) {
       card.removeAttribute('hidden');
   
+      const savedEmail = localStorage.getItem('hityourday_email');
       const input = document.getElementById('recover-email-input');
-      if (input && !input.value) input.value = savedEmail;
+      if (input && savedEmail && !input.value) input.value = savedEmail;
     }
-  }
+  }  
   
 }
 
@@ -555,12 +623,15 @@ window.addEventListener('DOMContentLoaded', () => {
   manager.bindEmailSave();
   manager.bindRecovery();
 
-  // Only loads streak if we already have a device cookie
   if (manager.deviceId) {
-    manager.loadStreak();
-  }
-
-  manager.maybeShowRecovery();
+    manager.loadStreak().then(streak => {
+      if (streak > 0) manager.showWelcomeBack(streak);
+    });
+    manager.loadTodayStats();
+    manager.loadHistory();
+  } else {
+    manager.maybeShowRecovery();
+  }  
 
   document.getElementById('start-round').addEventListener('click', () => {
     document.getElementById('landing').style.display = 'none';

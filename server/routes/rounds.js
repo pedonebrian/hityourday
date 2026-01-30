@@ -64,6 +64,62 @@ async function computeCurrentStreak(userId) {
   return streak;
 }
 
+router.get('/history', async (req, res) => {
+  try {
+    const deviceId = req.cookies?.hityourday_device_id;
+    const limit = parseInt(req.query.limit) || 30;
+
+    if (!deviceId) return res.json([]);
+
+    const userId = await resolveUserIdByDevice(deviceId);
+    if (!userId) return res.json([]);
+
+    const result = await query(
+      `SELECT *
+       FROM rounds
+       WHERE user_id = $1
+       ORDER BY completed_at DESC
+       LIMIT $2`,
+      [userId, limit]
+    );
+
+    res.json(result.rows);
+  } catch (error) {
+    console.error('Error fetching history:', error);
+    res.status(500).json({ error: 'Failed to fetch history' });
+  }
+});
+
+router.get('/today', async (req, res) => {
+  try {
+    const deviceId = req.cookies?.hityourday_device_id;
+
+    if (!deviceId) {
+      return res.json({ rounds_today: 0, total_punches: 0, avg_pace: 0 });
+    }
+
+    const userId = await resolveUserIdByDevice(deviceId);
+    if (!userId) {
+      return res.json({ rounds_today: 0, total_punches: 0, avg_pace: 0 });
+    }
+
+    const result = await query(
+      `SELECT
+         COUNT(*) as rounds_today,
+         COALESCE(SUM(punch_count), 0) as total_punches,
+         COALESCE(AVG(punches_per_minute), 0) as avg_pace
+       FROM rounds
+       WHERE user_id = $1 AND date = CURRENT_DATE`,
+      [userId]
+    );
+
+    res.json(result.rows[0]);
+  } catch (error) {
+    console.error('Error fetching today stats:', error);
+    res.status(500).json({ error: 'Failed to fetch stats' });
+  }
+});
+
 router.post(
   '/',
   // ✅ log request size BEFORE multer consumes the body

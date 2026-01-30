@@ -7,10 +7,12 @@ const router = express.Router();
 router.post('/link-email', async (req, res) => {
   try {
     const { deviceId: bodyDeviceId, email } = req.body || {};
-    const deviceId = bodyDeviceId || req.cookies?.hityourday_device_id;
 
-    if (!deviceId || !email) {
-      return res.status(400).json({ error: 'deviceId and email are required' });
+    // Prefer cookie, then body. If neither exists, generate server-side.
+    let deviceId = req.cookies?.hityourday_device_id || bodyDeviceId;
+
+    if (!email) {
+      return res.status(400).json({ error: 'email is required' });
     }
 
     const normalizedEmail = String(email).trim().toLowerCase();
@@ -18,18 +20,22 @@ router.post('/link-email', async (req, res) => {
       return res.status(400).json({ error: 'Invalid email' });
     }
 
-    // ✅ Ensure cookie exists (server-side source of truth)
+    if (!deviceId) {
+      deviceId = `device_${Date.now()}_${Math.random().toString(36).slice(2, 11)}`;
+    }
+
+    // ✅ Set cookie so THIS browser is now recognized
     res.cookie('hityourday_device_id', deviceId, {
-      maxAge: 1000 * 60 * 60 * 24 * 365, // 1 year
-      httpOnly: false,                  // allow client JS to read if you want; set true if not needed
+      maxAge: 1000 * 60 * 60 * 24 * 365,
+      httpOnly: false, // later you can set true once you stop reading it in JS
       sameSite: 'lax',
       secure: process.env.NODE_ENV === 'production'
     });
 
-    // 1) Resolve (or create) the current user for this device
+    // 1) Resolve (or create) current user for this device
     const deviceUserId = await getOrCreateUserIdByDevice(deviceId);
 
-    // 2) Find or create the email user (schema workaround)
+    // 2) Find/create the email user (schema workaround)
     const dummyDeviceId = `email_${Date.now()}_${Math.random().toString(36).slice(2)}`;
 
     const emailUserRes = await query(
@@ -56,7 +62,7 @@ router.post('/link-email', async (req, res) => {
       await query(`UPDATE user_devices SET user_id = $1 WHERE user_id = $2`, [emailUserId, deviceUserId]);
     }
 
-    res.json({ ok: true, userId: emailUserId, email: normalizedEmail });
+    res.json({ ok: true, userId: emailUserId, email: normalizedEmail, deviceId });
   } catch (err) {
     console.error('link-email error:', err);
     res.status(500).json({ error: 'Failed to link email' });
