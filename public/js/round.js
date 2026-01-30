@@ -48,30 +48,33 @@ class RoundManager {
     }
   }
   
-  async loadHistory(limit = 10) {
+  async loadHistory() {
     try {
-      const res = await fetch(`/api/rounds/history?limit=${limit}`, { credentials: 'include' });
+      const res = await fetch('/api/rounds/history?limit=20', {
+        credentials: 'include'
+      });
       const rows = await res.json();
   
       const el = document.getElementById('landing-history');
       if (!el) return;
   
-      if (!rows?.length) {
+      // Filter out zero-punch rounds
+      const meaningful = rows.filter(r => (r.punch_count || 0) > 0);
+  
+      if (!meaningful.length) {
         el.textContent = '';
         return;
       }
   
-      const items = rows.slice(0, limit).map(r => {
-        const d = new Date(r.completed_at || r.date);
-        const punches = r.punch_count ?? 0;
-        return `${d.toLocaleDateString()}: ${punches} punches`;
-      });
+      const last = meaningful[0];
+      const d = new Date(last.completed_at || last.date);
+      const punches = last.punch_count;
   
-      el.innerHTML = `<ul class="history-list">${items.map(x => `<li>${x}</li>`).join('')}</ul>`;
+      el.textContent = `Last time you showed up: ${punches} punches 👊`;
     } catch (e) {
       console.error('Error loading history:', e);
     }
-  }
+  }  
   
 
   setRecoverUI(state, text = '') {
