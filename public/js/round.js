@@ -30,6 +30,31 @@ class RoundManager {
 
   }
 
+  syncEmailCardState() {
+    const input = document.getElementById('email-input');
+    const btn = document.getElementById('email-save-btn');
+    const msg = document.getElementById('email-save-msg');
+  
+    if (!input || !btn || !msg) return;
+  
+    const existing = localStorage.getItem('hityourday_email');
+  
+    if (existing) {
+      input.value = existing;
+      input.disabled = true;
+      btn.disabled = true;
+      msg.classList.remove('error');
+      msg.classList.add('success');
+      msg.textContent = 'Saved ✅ Your streak is linked to you.';
+    } else {
+      input.disabled = false;
+      btn.disabled = false;
+      msg.textContent = '';
+      msg.classList.remove('success', 'error');
+    }
+  }
+  
+
   async loadTodayStats() {
     try {
       const res = await fetch('/api/rounds/today', { credentials: 'include' });
@@ -569,6 +594,8 @@ class RoundManager {
       document.getElementById('download-video').download = `hityourday-${punchCount}-punches.mp4`;
     }
 
+    this.syncEmailCardState();
+
     this.loadStreak();
     this.detector.reset();
   }
@@ -625,6 +652,7 @@ window.addEventListener('DOMContentLoaded', () => {
 
   manager.bindEmailSave();
   manager.bindRecovery();
+  manager.syncEmailCardState?.();
 
   if (manager.deviceId) {
     manager.loadStreak().then(streak => {
