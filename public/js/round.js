@@ -140,7 +140,7 @@ class RoundManager {
         this.showWelcomeBack(streak);
         
         // ✅ now load homepage data
-        await this.loadTodayStats();
+        //await this.loadTodayStats();
         await this.loadHistory();
       } catch (e) {
         this.setRecoverUI('error', 'Could not load. Try again.');
@@ -630,7 +630,7 @@ window.addEventListener('DOMContentLoaded', () => {
     manager.loadStreak().then(streak => {
       if (streak > 0) manager.showWelcomeBack(streak);
     });
-    manager.loadTodayStats();
+    //manager.loadTodayStats();
     manager.loadHistory();
   } else {
     manager.maybeShowRecovery();
