@@ -136,7 +136,7 @@ class RoundManager {
       }
   
       // Make sure this device has an ID cookie now
-      this.ensureDeviceId();
+      //this.ensureDeviceId();
   
       this.setRecoverUI('loading', 'Loading…');
   
