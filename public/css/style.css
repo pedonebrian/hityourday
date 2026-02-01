@@ -243,6 +243,14 @@
   /* ===================================
      FAQ
      =================================== */
+
+  .faq-header {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 24px;
+    letter-spacing: -0.02em;
+    text-align: center;
+  }
   
   .faq-item {
     padding: 18px 0;
