@@ -886,4 +886,23 @@
   .recover-input-group button:active {
     transform: scale(0.97);
   }  
+
+  .demo-wrap {
+    margin: 28px auto 32px;
+    width: min(360px, 92%);
+    border-radius: 22px;
+    overflow: hidden;
+    border: 1px solid rgba(255,255,255,0.12);
+    background: rgba(255,255,255,0.04);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.45);
+  }
+  
+  .demo-video {
+    width: 100%;
+    height: auto;
+    display: block;
+    aspect-ratio: 9 / 16;
+    object-fit: cover;
+  }
+  
   
