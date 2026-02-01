@@ -5,69 +5,36 @@ import { resolveUserIdByDevice, getOrCreateUserIdByDevice } from '../utils/userI
 
 const router = express.Router();
 
-/**
- * Pure streak calculator (no side effects)
- */
+
 async function computeStreak(userId) {
+  // All distinct active days
   const result = await query(
-    `SELECT DISTINCT date
+    `SELECT COUNT(DISTINCT date)::int AS days_showed_up,
+            MAX(date) AS last_activity
      FROM rounds
-     WHERE user_id = $1
-     ORDER BY date DESC`,
+     WHERE user_id = $1`,
     [userId]
   );
 
-  const dates = result.rows.map(r => {
-    const d = new Date(r.date);
+  const daysShowedUp = Number(result.rows?.[0]?.days_showed_up || 0);
+  const lastActivityRaw = result.rows?.[0]?.last_activity || null;
+
+  // Normalize lastActivity to a Date at midnight (optional, but consistent)
+  let lastActivity = null;
+  if (lastActivityRaw) {
+    const d = new Date(lastActivityRaw);
     d.setHours(0, 0, 0, 0);
-    return d;
-  });
-
-  if (dates.length === 0) {
-    return { currentStreak: 0, longestStreak: 0 };
+    lastActivity = d;
   }
 
-  const dateSet = new Set(dates.map(d => d.getTime()));
-
-  // Current streak
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-
-  let currentStreak = 0;
-  for (let i = 0; i < 3650; i++) {
-    const check = new Date(today);
-    check.setDate(today.getDate() - i);
-    check.setHours(0, 0, 0, 0);
-
-    if (dateSet.has(check.getTime())) currentStreak++;
-    else break;
-  }
-
-  // Longest streak (walk sorted DESC list)
-  let longestStreak = 1;
-  let tempStreak = 1;
-
-  for (let i = 0; i < dates.length - 1; i++) {
-    const dayDiff = Math.round(
-      (dates[i].getTime() - dates[i + 1].getTime()) / (1000 * 60 * 60 * 24)
-    );
-
-    if (dayDiff === 1) {
-      tempStreak++;
-      longestStreak = Math.max(longestStreak, tempStreak);
-    } else {
-      tempStreak = 1;
-    }
-  }
-
-  longestStreak = Math.max(longestStreak, currentStreak, longestStreak);
-
+  // For backwards compatibility with existing frontend fields:
   return {
-    currentStreak,
-    longestStreak,
-    lastActivity: dates[0]
+    currentStreak: daysShowedUp,
+    longestStreak: daysShowedUp, // same value (since we're not tracking consecutive chains)
+    lastActivity
   };
 }
+
 
 /**
  * ✅ NEW: cookie-first streak endpoint for homepage
