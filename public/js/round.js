@@ -664,10 +664,12 @@ window.addEventListener('DOMContentLoaded', () => {
     manager.maybeShowRecovery();
   }  
 
-  document.getElementById('start-round').addEventListener('click', () => {
-    document.getElementById('landing').style.display = 'none';
-    document.getElementById('loading').style.display = 'block';
-    manager.startRound();
+  document.querySelectorAll('.start-round').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.getElementById('landing').style.display = 'none';
+      document.getElementById('loading').style.display = 'block';
+      manager.startRound();
+    });
   });
 
   document.getElementById('end-round').addEventListener('click', () => {
