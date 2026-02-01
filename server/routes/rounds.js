@@ -31,37 +31,13 @@ const upload = multer({
 
 async function computeCurrentStreak(userId) {
   const result = await query(
-    `SELECT DISTINCT date
+    `SELECT COUNT(DISTINCT date)::int AS days_showed_up
      FROM rounds
-     WHERE user_id = $1
-     ORDER BY date DESC`,
+     WHERE user_id = $1`,
     [userId]
   );
 
-  if (!result.rows.length) return 0;
-
-  const dates = result.rows.map(r => {
-    const d = new Date(r.date);
-    d.setHours(0, 0, 0, 0);
-    return d.getTime();
-  });
-
-  const dateSet = new Set(dates);
-
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-
-  let streak = 0;
-  for (let i = 0; i < 3650; i++) {
-    const check = new Date(today);
-    check.setDate(today.getDate() - i);
-    check.setHours(0, 0, 0, 0);
-
-    if (dateSet.has(check.getTime())) streak++;
-    else break;
-  }
-
-  return streak;
+  return Number(result.rows?.[0]?.days_showed_up || 0);
 }
 
 router.get('/history', async (req, res) => {
