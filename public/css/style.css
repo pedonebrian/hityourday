@@ -970,3 +970,58 @@
     aspect-ratio: 9 / 16;
     object-fit: cover;
   }
+
+  .recover-how-it-works {
+    margin: 16px 0 20px;
+  }
+
+  .recover-how-it-works p {
+    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.85);
+    margin-bottom: 8px;
+  }
+
+  .recover-how-it-works ul {
+    list-style: none;
+    padding-left: 0;
+    margin: 0;
+  }
+
+  .recover-how-it-works li {
+    padding-left: 20px;
+    position: relative;
+    margin-bottom: 8px;
+    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.75);
+    line-height: 1.5;
+  }
+
+  .recover-how-it-works li:before {
+    content: "•";
+    position: absolute;
+    left: 0;
+    color: #FF0000;
+    font-weight: 700;
+  }
+
+  .recover-divider {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 24px 0;
+  }
+
+  .recover-divider hr {
+    flex: 1;
+    border: none;
+    border-top: 1px solid rgba(255, 255, 255, 0.15);
+    margin: 0;
+  }
+
+  .recover-divider span {
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    font-weight: 600;
+  }
