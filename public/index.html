@@ -44,26 +44,52 @@
       <!-- Landing -->
       <section id="landing" class="screen active" aria-labelledby="landing-title">
         <div class="landing-main">
-          <h1 id="landing-title">HIT YOUR DAY</h1>
-          <p class="tagline">The 3-minute habit that builds unstoppable momentum</p>
-
-          <button class="btn-primary start-round" type="button">
-            Start
-          </button>
-
+          <!-- Title + Tagline -->
+          <div class="hero-header">
+            <h1 id="landing-title">HIT YOUR DAY</h1>
+            <p class="tagline">The 3-minute habit that builds unstoppable momentum</p>
+          </div>
+      
+          <!-- Hero Video with START Button Overlay -->
+          <div class="hero-video-container">
+            <video
+              class="hero-video"
+              autoplay
+              muted
+              loop
+              playsinline
+              preload="metadata"
+              aria-label="Hit Your Day demo showing live punch counting"
+            >
+              <source src="/videos/hyd-homepage-video-action.mp4" type="video/mp4" />
+            </video>
+            
+            <!-- Non-clickable gradient with clickable button -->
+            <div class="hero-cta-overlay">
+              <button class="btn-primary btn-hero start-round" type="button">
+                START
+              </button>
+            </div>
+          </div>
+      
+          <!-- Privacy reassurance -->
           <p class="privacy-note">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <rect x="3" y="6" width="8" height="6" rx="1" stroke="currentColor" stroke-width="1.5" fill="none"/>
+              <path d="M4.5 6V4.5C4.5 3.11929 5.61929 2 7 2C8.38071 2 9.5 3.11929 9.5 4.5V6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+              <circle cx="7" cy="9" r="0.75" fill="currentColor"/>
+            </svg>
             No signup required • Camera stays private • Takes ~3 minutes
           </p>
-
+      
+          <!-- Today's Goal -->
           <p class="landing-goal" aria-live="polite">
-            Today’s goal: <strong id="landing-goal-value">100</strong> punches
+            Today's goal: <strong id="landing-goal-value">100</strong> punches
           </p>
-
-          <!-- <p id="landing-today" class="muted"></p> -->
+      
           <div id="landing-history"></div>
-
-
-          <!-- ✅ Recovery (ONLY shows if device not recognized) -->
+      
+          <!-- Recovery Card -->
           <div id="recover-card" class="recover-card" hidden>
             <h2 class="recover-title">New here? 👋</h2>
             <p class="recover-subtitle">
@@ -107,38 +133,16 @@
             </div>
             
             <div id="recover-msg" class="msg" aria-live="polite"></div>
-          </div>      
-
+          </div>
+      
           <div id="welcome-back" class="welcome-back" hidden aria-live="polite"></div>
-
-          <!-- Helpful consent/context for camera usage -->
+      
           <p class="sr-only" id="camera-note">
             This app uses your camera to detect motion. You can end the round at any time.
           </p>
         </div>
-
-        <!-- Demo video -->
-        <div class="demo-wrap" aria-label="Hit Your Day demo video">
-          <video
-            class="demo-video"
-            autoplay
-            muted
-            loop
-            playsinline
-            preload="metadata"
-            poster="/images/hyd-poster.jpg"
-          >
-            <source src="/videos/hyd-homepage-video-action.mp4" type="video/mp4" />
-          </video>
-        </div>
-
-        <div class="cta-after-demo">
-          <button class="btn-primary start-round" type="button">
-            Start
-          </button>
-        </div>
-
-        <!-- Footer content (kept away from CTA) -->
+      
+        <!-- FAQ Section -->
         <div class="landing-footer" aria-label="Help and frequently asked questions">
           <h2 class="faq-header">FAQ</h2>
         

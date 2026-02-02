@@ -1058,3 +1058,199 @@
     flex-shrink: 0;
     opacity: 0.8;
   }
+
+  /* ===================================
+   HERO SECTION
+   =================================== */
+
+.hero-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.hero-video-container {
+  position: relative;
+  width: 100%;
+  max-width: 400px;
+  max-height: calc(100vh - 280px); /* Ensure button stays above fold */
+  margin: 0 auto 2rem;
+  border-radius: 24px;
+  overflow: hidden;
+  box-shadow: 
+    0 20px 60px rgba(0, 0, 0, 0.6),
+    0 0 80px rgba(255, 0, 0, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.hero-video {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+}
+
+/* Non-clickable gradient overlay */
+.hero-cta-overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 2rem 1.5rem;
+  background: linear-gradient(
+    to top,
+    rgba(0, 0, 0, 0.92) 0%,
+    rgba(0, 0, 0, 0.75) 35%,
+    rgba(0, 0, 0, 0.3) 65%,
+    transparent 100%
+  );
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  pointer-events: none; /* Overlay itself not clickable */
+}
+
+/* Only the button is clickable */
+.hero-cta-overlay button {
+  pointer-events: auto;
+}
+
+/* The START button */
+.btn-hero {
+  padding: 1.3rem 4rem;
+  font-size: 1.3rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  box-shadow: 
+    0 0 40px rgba(255, 0, 0, 0.5),
+    0 0 80px rgba(255, 0, 0, 0.25),
+    0 4px 16px rgba(0, 0, 0, 0.8);
+  transition: all 0.3s ease;
+}
+
+.btn-hero:hover {
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 
+    0 0 60px rgba(255, 0, 0, 0.7),
+    0 0 120px rgba(255, 0, 0, 0.35),
+    0 8px 24px rgba(0, 0, 0, 0.9);
+}
+
+.btn-hero:active {
+  transform: translateY(0) scale(0.98);
+}
+
+/* Privacy Note */
+.privacy-note {
+  font-size: 0.85rem;
+  color: rgba(255,255,255,0.55);
+  margin: 1.5rem auto 2rem;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  justify-content: center;
+  line-height: 1.4;
+  max-width: 90%;
+}
+
+.privacy-note svg {
+  flex-shrink: 0;
+  opacity: 0.7;
+  margin-top: -1px;
+}
+
+/* Today's Goal */
+.landing-goal {
+  margin: 2rem auto 1rem;
+  padding: 0.75rem 1.5rem;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 999px;
+  backdrop-filter: blur(10px);
+  display: inline-block;
+  font-size: 1rem;
+  opacity: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.landing-goal strong {
+  color: #FF0000;
+  font-weight: 700;
+  font-size: 1.1rem;
+}
+
+/* Adjust landing main */
+.landing-main {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: auto;
+  justify-content: flex-start;
+  padding: 40px 0 80px;
+}
+
+/* ===================================
+   MOBILE RESPONSIVE
+   =================================== */
+
+@media (max-width: 480px) {
+  .hero-header {
+    margin-bottom: 1.5rem;
+  }
+
+  h1 {
+    font-size: 2.5rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .tagline {
+    font-size: 1.05rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .hero-video-container {
+    max-width: 340px;
+    max-height: calc(100vh - 260px);
+  }
+
+  .hero-cta-overlay {
+    padding: 1.75rem 1rem;
+  }
+
+  .btn-hero {
+    padding: 1.2rem 3.5rem;
+    font-size: 1.2rem;
+  }
+
+  .privacy-note {
+    font-size: 0.8rem;
+    gap: 5px;
+  }
+}
+
+/* For very short screens */
+@media (max-height: 700px) {
+  .hero-video-container {
+    max-height: calc(100vh - 240px);
+  }
+
+  h1 {
+    font-size: 2.2rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .tagline {
+    font-size: 1rem;
+    margin-bottom: 1rem;
+  }
+
+  .hero-cta-overlay {
+    padding: 1.5rem 1rem;
+  }
+}
+
+/* Tablet and up */
+@media (min-width: 768px) {
+  .hero-video-container {
+    max-width: 420px;
+  }
+}
