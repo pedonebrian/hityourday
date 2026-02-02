@@ -1339,3 +1339,81 @@
     max-width: 420px;
   }
 }
+
+/* Desktop Layout - Side by Side */
+@media (min-width: 768px) {
+  .container {
+    max-width: 1200px;
+  }
+
+  .landing-main {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 3rem;
+    align-items: start;
+    padding: 60px 40px 80px;
+  }
+
+  /* Left column - Title + Video */
+  .hero-header {
+    grid-column: 1;
+    text-align: left;
+    margin-bottom: 2rem;
+  }
+
+  h1 {
+    font-size: 3.5rem;
+  }
+
+  .hero-video-container {
+    grid-column: 1;
+    grid-row: 2;
+    max-width: 100%;
+    max-height: 80vh;
+    margin: 0;
+  }
+
+  /* Right column - Content stack */
+  .landing-content-stack {
+    grid-column: 2;
+    grid-row: 1 / 3;
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    padding-top: 0;
+  }
+
+  .landing-goal {
+    margin: 0;
+    width: 100%;
+    max-width: none;
+  }
+
+  #landing-history {
+    width: 100%;
+  }
+
+  .recover-card {
+    margin-top: 0;
+  }
+
+  #welcome-back {
+    margin-top: 0;
+  }
+}
+
+/* Even larger screens */
+@media (min-width: 1024px) {
+  .landing-main {
+    gap: 4rem;
+    padding: 80px 60px 100px;
+  }
+
+  h1 {
+    font-size: 4rem;
+  }
+
+  .hero-video-container {
+    max-width: 500px;
+  }
+}
