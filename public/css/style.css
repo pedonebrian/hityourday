@@ -1351,14 +1351,14 @@
     grid-template-columns: 1fr 1fr;
     gap: 3rem;
     align-items: start;
-    padding: 60px 40px 80px;
+    padding: 40px 40px 80px; /* Reduced top padding from 60px to 40px */
   }
 
   /* Title spans full width and is centered */
   .hero-header {
-    grid-column: 1 / -1; /* Span all columns (full width) */
+    grid-column: 1 / -1;
     text-align: center;
-    margin-bottom: 3rem;
+    margin-bottom: 2rem; /* Reduced from 3rem to 2rem */
   }
 
   h1 {
@@ -1373,14 +1373,15 @@
     margin: 0;
   }
 
-  /* Right column - Content stack */
+  /* Right column - Content stack, vertically centered */
   .landing-content-stack {
     grid-column: 2;
     grid-row: 2;
     display: flex;
     flex-direction: column;
     gap: 2rem;
-    padding-top: 0;
+    justify-content: center; /* Center vertically */
+    min-height: 100%; /* Take full height to enable centering */
   }
 
   .landing-goal {
@@ -1406,7 +1407,11 @@
 @media (min-width: 1024px) {
   .landing-main {
     gap: 4rem;
-    padding: 80px 60px 100px;
+    padding: 50px 60px 100px; /* Reduced top padding from 80px to 50px */
+  }
+
+  .hero-header {
+    margin-bottom: 2.5rem;
   }
 
   h1 {
