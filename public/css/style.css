@@ -1351,18 +1351,19 @@
     grid-template-columns: 1fr 1fr;
     gap: 3rem;
     align-items: start;
-    padding: 40px 40px 80px; /* Reduced top padding from 60px to 40px */
+    padding: 30px 40px 80px; /* Reduced from 40px to 30px */
   }
 
   /* Title spans full width and is centered */
   .hero-header {
     grid-column: 1 / -1;
     text-align: center;
-    margin-bottom: 2rem; /* Reduced from 3rem to 2rem */
+    margin-bottom: 1rem; /* Reduced from 2rem to 1rem */
   }
 
   h1 {
     font-size: 3.5rem;
+    margin-bottom: 0;
   }
 
   .hero-video-container {
@@ -1380,8 +1381,8 @@
     display: flex;
     flex-direction: column;
     gap: 2rem;
-    justify-content: center; /* Center vertically */
-    min-height: 100%; /* Take full height to enable centering */
+    justify-content: center;
+    min-height: 100%;
   }
 
   .landing-goal {
@@ -1407,11 +1408,11 @@
 @media (min-width: 1024px) {
   .landing-main {
     gap: 4rem;
-    padding: 50px 60px 100px; /* Reduced top padding from 80px to 50px */
+    padding: 40px 60px 100px; /* Reduced from 50px to 40px */
   }
 
   .hero-header {
-    margin-bottom: 2.5rem;
+    margin-bottom: 1.5rem; /* Reduced from 2.5rem to 1.5rem */
   }
 
   h1 {
