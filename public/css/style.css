@@ -1095,18 +1095,31 @@
   bottom: 0;
   left: 0;
   right: 0;
-  padding: 2rem 1.5rem;
+  padding: 3rem 1.5rem 2.5rem; /* More top padding to cover END ROUND area */
   background: linear-gradient(
     to top,
-    rgba(0, 0, 0, 0.92) 0%,
-    rgba(0, 0, 0, 0.75) 35%,
-    rgba(0, 0, 0, 0.3) 65%,
+    rgba(0, 0, 0, 0.95) 0%,
+    rgba(0, 0, 0, 0.88) 25%,
+    rgba(0, 0, 0, 0.75) 45%,
+    rgba(0, 0, 0, 0.4) 70%,
     transparent 100%
   );
   display: flex;
   justify-content: center;
   align-items: flex-end;
-  pointer-events: none; /* Overlay itself not clickable */
+  pointer-events: none;
+}
+
+/* Add a solid overlay just for the button area */
+.hero-cta-overlay::before {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 35%;
+  background: rgba(0, 0, 0, 0.9);
+  z-index: -1;
 }
 
 /* Only the button is clickable */
@@ -1116,10 +1129,11 @@
 
 /* The START button */
 .btn-hero {
-  padding: 1.3rem 4rem;
-  font-size: 1.3rem;
+  padding: 1.2rem 5rem;
+  font-size: 1.25rem;
   font-weight: 800;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.12em;
+  border-radius: 8px;
   box-shadow: 
     0 0 40px rgba(255, 0, 0, 0.5),
     0 0 80px rgba(255, 0, 0, 0.25),
@@ -1213,12 +1227,12 @@
   }
 
   .hero-cta-overlay {
-    padding: 1.75rem 1rem;
+    padding: 2.5rem 1rem 2rem;
   }
 
   .btn-hero {
-    padding: 1.2rem 3.5rem;
-    font-size: 1.2rem;
+    padding: 1.1rem 4rem;
+    font-size: 1.15rem;
   }
 
   .privacy-note {
