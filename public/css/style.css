@@ -1095,18 +1095,17 @@
   bottom: 0;
   left: 0;
   right: 0;
-  padding: 3rem 1.5rem 2.5rem; /* More top padding to cover END ROUND area */
-  background: linear-gradient(
-    to top,
-    rgba(0, 0, 0, 0.95) 0%,
-    rgba(0, 0, 0, 0.88) 25%,
-    rgba(0, 0, 0, 0.75) 45%,
-    rgba(0, 0, 0, 0.4) 70%,
-    transparent 100%
-  );
+  height: 50%; /* Cover bottom half of video */
   display: flex;
   justify-content: center;
-  align-items: flex-end;
+  align-items: center; /* Center vertically within the overlay */
+  background: linear-gradient(
+    to top,
+    rgba(0, 0, 0, 1) 0%,
+    rgba(0, 0, 0, 0.95) 35%,
+    rgba(0, 0, 0, 0.7) 60%,
+    transparent 100%
+  );
   pointer-events: none;
 }
 
