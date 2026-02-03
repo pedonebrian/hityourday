@@ -521,6 +521,8 @@ class RoundManager {
     formData.append('durationSeconds', durationSeconds);
     formData.append('pace', pace);
     formData.append('topSpeedMph', topSpeedMph);
+
+    formData.append('dailyGoal', String(this.todayTarget ?? DAILY_TARGET_PUNCHES));
   
     if (videoBlob) formData.append('video', videoBlob, 'round.webm');
   

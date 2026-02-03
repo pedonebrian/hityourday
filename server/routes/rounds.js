@@ -139,6 +139,15 @@ router.post(
       const paceFromClient = Number(req.body.pace);
       const topSpeedMphFromClient = Number(req.body.topSpeedMph);
 
+      const dailyGoalFromClient = Number(req.body.dailyGoal);
+
+      const dailyGoal =
+      Number.isFinite(dailyGoalFromClient) && dailyGoalFromClient > 0 && dailyGoalFromClient < 100000
+        ? Math.floor(dailyGoalFromClient)
+        : null;
+
+      const hitDailyGoal = dailyGoal !== null ? punchCount >= dailyGoal : false;
+
       if (!deviceId || !Number.isFinite(punchCount) || !Number.isFinite(durationSeconds)) {
         return res.status(400).json({ error: 'Missing/invalid required fields' });
       }
@@ -166,10 +175,10 @@ router.post(
       const topSpeedMph = Number.isFinite(topSpeedMphFromClient) ? topSpeedMphFromClient : 0;
 
       const roundResult = await query(
-        `INSERT INTO rounds (user_id, punch_count, duration_seconds, punches_per_minute)
-         VALUES ($1, $2, $3, $4)
+        `INSERT INTO rounds (user_id, punch_count, duration_seconds, punches_per_minute, daily_goal, hit_daily_goal)
+         VALUES ($1, $2, $3, $4, $5, $6)
          RETURNING *`,
-        [userId, punchCount, durationSeconds, punchesPerMinute.toFixed(2)]
+        [userId, punchCount, durationSeconds, punchesPerMinute.toFixed(2), dailyGoal, hitDailyGoal]
       );
 
       const round = roundResult.rows[0];
