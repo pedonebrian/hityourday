@@ -153,16 +153,32 @@
         <!-- FAQ Section (full width below) -->
         <div class="landing-footer" aria-label="Help and frequently asked questions">
           <h2 class="faq-header">FAQ</h2>
+
+          <details class="faq-item">
+            <summary>What is Hit Your Day?</summary>
+            <p>A frictionless daily habit. Throw punches for a short round, hit your goal, and build a streak.</p>
+          </details>
         
           <details class="faq-item">
             <summary>Do I need to know how to box?</summary>
             <p>Not at all! Just throw punches at the camera. No experience, equipment, or technique required.</p>
           </details>
-        
+
           <details class="faq-item">
-            <summary>What is Hit Your Day?</summary>
-            <p>A frictionless daily habit. Throw punches for a short round, hit your goal, and build a streak.</p>
-          </details>
+            <summary>What if my punches aren’t being counted?</summary>
+            <p>
+              Punch detection works best when both of your wrists are clearly visible to the camera.
+              If punches aren’t registering:
+            </p>
+            <ul>
+              <li>Step back so both hands stay fully in frame</li>
+              <li>Improve lighting (face a light or window)</li>
+              <li>Keep your hands around chest height</li>
+            </ul>
+            <p>
+              If we can’t see both wrists, you’ll see a small on-screen message letting you know how to adjust.
+            </p>
+          </details>          
         
           <details class="faq-item">
             <summary>Do you store my camera video?</summary>
@@ -328,6 +344,33 @@
       </section>
     </main>
   </div>
+
+  <!-- Wrist detection warning banner -->
+  <div
+  id="wrist-warning"
+  hidden
+  role="status"
+  aria-live="polite"
+  aria-atomic="true"
+  style="
+    position: fixed;
+    top: 12px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(17, 17, 17, 0.95);
+    color: #fff;
+    padding: 10px 14px;
+    border-radius: 10px;
+    font-size: 14px;
+    z-index: 9999;
+    max-width: min(92vw, 520px);
+    text-align: center;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.35);
+  "
+  >
+  Can’t see both of your wrists. Move back, improve lighting, keep hands in frame.
+  </div>
+
 
   <!-- MediaPipe Hands -->
   <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>

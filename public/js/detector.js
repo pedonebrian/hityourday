@@ -8,6 +8,12 @@ class PunchDetector {
       this.punchCooldown = 200; // ms between punches
       this.velocityThreshold = 0.12; // Normalized coordinates (0-1 range)
       this.previousHands = { Left: null, Right: null };
+
+      // Wrist visibility tracking
+      this.lastBothWristsSeenAt = Date.now();
+      this.wristGraceMs = 1000; // wait 1s before warning
+      this.showingWristWarning = false;
+      this.visibilityCallback = null;
   
       this.fastestPunch = 0;
       this.fastestPunchHand = '';
@@ -20,7 +26,7 @@ class PunchDetector {
       this.ctx = null;
       this.videoElement = null;
       this.detectionCallback = null;
-    }
+    }  
   
     async init() {
       console.log('🥊 Loading MediaPipe Hands...');
@@ -50,15 +56,48 @@ class PunchDetector {
   
     onResults(results) {
       if (!this.isDetecting) return;
-  
-      if (results.multiHandLandmarks && results.multiHandLandmarks.length > 0) {
-        results.multiHandLandmarks.forEach((landmarks, index) => {
-          const handedness = results.multiHandedness[index].label; // "Left" or "Right"
-          const wrist = landmarks[0];
-          this.checkForPunch(wrist, handedness);
-        });
+    
+      const now = Date.now();
+    
+      const landmarks = results.multiHandLandmarks || [];
+      const handedness = results.multiHandedness || [];
+    
+      let leftWristSeen = false;
+      let rightWristSeen = false;
+    
+      landmarks.forEach((handLandmarks, index) => {
+        const label = handedness[index]?.label; // "Left" or "Right"
+        const wrist = handLandmarks[0];
+    
+        if (label === 'Left') leftWristSeen = true;
+        if (label === 'Right') rightWristSeen = true;
+    
+        this.checkForPunch(wrist, label);
+      });
+    
+      const bothWristsVisible = leftWristSeen && rightWristSeen;
+    
+      if (bothWristsVisible) {
+        this.lastBothWristsSeenAt = now;
+    
+        if (this.showingWristWarning) {
+          this.showingWristWarning = false;
+          this.visibilityCallback?.(false); // hide banner
+        }
+      } else {
+        const timeMissing = now - this.lastBothWristsSeenAt;
+    
+        if (timeMissing > this.wristGraceMs && !this.showingWristWarning) {
+          this.showingWristWarning = true;
+          this.visibilityCallback?.(true); // show banner
+        }
       }
     }
+    
+
+    setVisibilityCallback(callback) {
+      this.visibilityCallback = callback;
+    }  
   
     checkForPunch(wrist, handedness) {
       const now = Date.now();
@@ -130,6 +169,10 @@ class PunchDetector {
       this.fastestPunchHand = '';
       this.roundStartMs = Date.now();
       this.fastestPunchAtMs = 0;
+
+      this.lastBothWristsSeenAt = Date.now();
+      this.showingWristWarning = false;
+
   
       this.detectPunches(video, callback);
     }

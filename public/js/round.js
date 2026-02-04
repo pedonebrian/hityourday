@@ -292,6 +292,16 @@ class RoundManager {
       await this.detector.init();
       await new Promise(resolve => setTimeout(resolve, 500));
 
+      // Hook up wrist warning banner
+      const banner = document.getElementById('wrist-warning');
+      if (banner) {
+        this.detector.setVisibilityCallback((show) => {
+          // show = true when both wrists not visible for grace period
+          banner.hidden = !show;
+        });
+      }
+
+
       this.ensureDeviceId();
 
       await this.loadStreak();
@@ -424,6 +434,10 @@ class RoundManager {
     // Stop detection
     this.detector.stop();
     clearInterval(this.timerInterval);
+
+    const banner = document.getElementById('wrist-warning');
+    if (banner) banner.hidden = true;
+
   
     const duration = Math.floor((Date.now() - this.startTime) / 1000);
     const punches = this.detector.punchCount;
