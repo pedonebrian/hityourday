@@ -6,6 +6,7 @@ import { fileURLToPath } from 'url';
 import { query } from '../db.js';
 import VideoProcessor from '../utils/videoProcessor.js';
 import { getOrCreateUserIdByDevice, resolveUserIdByDevice } from '../utils/userIdentity.js';
+import { maybeSendStreakMilestoneEmail } from '../utils/milestones.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -185,6 +186,10 @@ router.post(
 
       const currentStreak = await computeCurrentStreak(userId);
       round.current_streak = currentStreak;
+
+      maybeSendStreakMilestoneEmail(userId, currentStreak).catch((e) => {
+        console.error('Milestone email failed:', e);
+      });
 
       // attach for UI even if DB doesn't store them
       round.punches_per_minute = Number(punchesPerMinute.toFixed(2));
