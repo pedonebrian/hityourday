@@ -462,47 +462,49 @@
   .goal-wrap {
     order: 4;
     margin-top: auto;
-    margin-bottom: 2rem;
+    margin-bottom: 3rem;
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 14px;
     align-items: center;
   }
   
   .goal-pill {
-    background: rgba(0, 0, 0, 0.4);
-    backdrop-filter: blur(20px) saturate(180%);
-    padding: 0.75rem 1.5rem;
+    background: rgba(0, 0, 0, 0.55);
+    backdrop-filter: blur(24px) saturate(180%);
+    padding: 1.25rem 2.5rem;
     border-radius: 999px;
-    border: 1px solid rgba(255, 255, 255, 0.18);
-    box-shadow: 
-      0 8px 32px rgba(0, 0, 0, 0.4), 
-      inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    border: 2px solid rgba(255, 255, 255, 0.25);
+    box-shadow:
+      0 20px 60px rgba(0, 0, 0, 0.6),
+      inset 0 1px 0 rgba(255, 255, 255, 0.2);
   }
   
   .goal-label {
     display: block;
-    font-size: 0.75rem;
+    font-size: 0.9rem;
     text-transform: uppercase;
-    letter-spacing: 0.1em;
-    color: rgba(255, 255, 255, 0.7);
-    margin-bottom: 0.25rem;
-    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.15em;
+    color: rgba(255, 255, 255, 0.8);
+    margin-bottom: 0.4rem;
+    font-weight: 600;
   }
   
   .goal-value {
     display: block;
-    font-size: 1rem;
-    font-weight: 700;
+    font-size: 2.4rem;     /* was 1rem */
+    font-weight: 800;
     color: #fff;
+    line-height: 1.1;
     font-variant-numeric: tabular-nums;
   }
   
   .goal-status {
-    margin-top: 0.5rem;
-    font-size: 0.9rem;
-    color: rgba(255, 255, 255, 0.9);
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
+    margin-top: 0.75rem;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.95);
+    text-shadow: 0 3px 6px rgba(0, 0, 0, 0.9);
   }
   
   .goal-wrap.goal-hit .goal-pill {
