@@ -163,6 +163,11 @@ class RoundManager {
 
         const streak = await this.loadStreak();
         this.showWelcomeBack(streak);
+
+        if (typeof window.fbq === 'function') {
+          const eventId = 'lead_recover_' + Date.now();
+          fbq('track', 'Lead', { source: 'email_recover' }, { eventID: eventId });
+        }              
         
         // ✅ now load homepage data
         //await this.loadTodayStats();
@@ -272,6 +277,10 @@ class RoundManager {
 
         localStorage.setItem('hityourday_email', email);
         this.setEmailUI('saved', 'Saved ✅ Your streak will follow you on any device.');
+        if (typeof window.fbq === 'function') {
+          const eventId = 'lead_' + Date.now();
+          fbq('track', 'Lead', { source: 'email_save' }, { eventID: eventId });
+        }               
       } catch (e) {
         this.setEmailUI('error', 'Could not save. Try again.');
       }
