@@ -5,32 +5,149 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Hit Your Day — Admin</title>
   <link rel="stylesheet" href="/css/style.css" />
+  <style>
+    .grid-2 { display:grid; grid-template-columns: 1fr 1fr; gap:12px; }
+    .grid-3 { display:grid; grid-template-columns: 1fr 1fr 1fr; gap:12px; }
+    @media (max-width: 640px) {
+      .grid-2, .grid-3 { grid-template-columns: 1fr; }
+    }
+    .kpi-label { margin-bottom: 6px; }
+    .kpi-value { font-size: 40px; font-weight: 700; line-height: 1; }
+    .section { margin: 18px 0 10px; }
+    .section h2 { font-size: 14px; letter-spacing: .06em; text-transform: uppercase; margin: 0 0 10px; }
+    .row { display:flex; justify-content: space-between; gap: 12px; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.08); }
+    .row:last-child { border-bottom: none; }
+    table { width:100%; border-collapse: collapse; }
+    th, td { padding: 10px 8px; border-bottom: 1px solid rgba(255,255,255,0.08); text-align:left; }
+    th { font-size: 12px; text-transform: uppercase; letter-spacing: .06em; }
+    td.num { text-align:right; font-variant-numeric: tabular-nums; }
+  </style>
 </head>
 <body>
   <div class="container">
-    <main class="screen active" style="text-align:left; max-width:640px; margin:0 auto;">
-      <h1 style="margin-bottom: 12px;">Admin</h1>
-      <p class="muted" style="margin-bottom: 20px;">Basic stats (all-time)</p>
-
-      <div class="card" style="padding:16px; margin-bottom: 12px;">
-        <div class="muted" style="margin-bottom:6px;">Total Punches</div>
-        <div id="totalPunches" style="font-size: 40px; font-weight: 700;">—</div>
+    <main class="screen active" style="text-align:left; max-width:860px; margin:0 auto;">
+      <div style="display:flex; align-items:flex-end; justify-content:space-between; gap:12px; margin-bottom:12px;">
+        <div>
+          <h1 style="margin-bottom: 6px;">Admin</h1>
+          <p class="muted" style="margin: 0;">Health + growth snapshot</p>
+        </div>
+        <button id="refresh" class="btn-primary" type="button">Refresh</button>
       </div>
 
-      <div class="card" style="padding:16px; margin-bottom: 20px;">
-        <div class="muted" style="margin-bottom:6px;">Unique Users (with email)</div>
-        <div id="uniqueEmailUsers" style="font-size: 40px; font-weight: 700;">—</div>
+      <!-- KPI cards -->
+      <div class="grid-2" style="margin-bottom: 12px;">
+        <div class="card" style="padding:16px;">
+          <div class="muted kpi-label">Total Punches (all-time)</div>
+          <div id="totalPunches" class="kpi-value">—</div>
+        </div>
+
+        <div class="card" style="padding:16px;">
+          <div class="muted kpi-label">Total Users</div>
+          <div id="totalUsers" class="kpi-value">—</div>
+        </div>
       </div>
 
-      <button id="refresh" class="btn-primary" type="button">Refresh</button>
+      <div class="grid-2" style="margin-bottom: 18px;">
+        <div class="card" style="padding:16px;">
+          <div class="muted kpi-label">Users w/ Email</div>
+          <div id="uniqueEmailUsers" class="kpi-value">—</div>
+          <div class="muted" style="margin-top:10px;">
+            Email capture rate: <span id="emailCaptureRate">—</span>
+          </div>
+        </div>
+
+        <div class="card" style="padding:16px;">
+          <div class="muted kpi-label">Users w/o Email</div>
+          <div id="uniqueUsersNoEmail" class="kpi-value">—</div>
+          <div class="muted" style="margin-top:10px;">
+            Opportunity: add “save your streak” nudge
+          </div>
+        </div>
+      </div>
+
+      <!-- Activity (optional, only shows if API returns it) -->
+      <div class="section">
+        <h2 class="muted">Activity</h2>
+      </div>
+
+      <div class="grid-3" style="margin-bottom: 18px;">
+        <div class="card" style="padding:16px;">
+          <div class="muted kpi-label">DAU</div>
+          <div id="dau" class="kpi-value" style="font-size:32px;">—</div>
+        </div>
+        <div class="card" style="padding:16px;">
+          <div class="muted kpi-label">WAU</div>
+          <div id="wau" class="kpi-value" style="font-size:32px;">—</div>
+        </div>
+        <div class="card" style="padding:16px;">
+          <div class="muted kpi-label">MAU</div>
+          <div id="mau" class="kpi-value" style="font-size:32px;">—</div>
+        </div>
+      </div>
+
+      <!-- Last 7 days table (optional) -->
+      <div class="section">
+        <h2 class="muted">Last 7 days</h2>
+      </div>
+
+      <div class="card" style="padding: 12px 16px; margin-bottom: 10px;">
+        <div class="muted" style="margin-bottom:10px;">Daily active users, rounds, punches</div>
+        <div style="overflow:auto;">
+          <table>
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th class="num">DAU</th>
+                <th class="num">Rounds</th>
+                <th class="num">Punches</th>
+                <th class="num">Goal Hit %</th>
+              </tr>
+            </thead>
+            <tbody id="last7Body">
+              <tr><td colspan="5" class="muted">—</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
       <p id="msg" class="muted" style="margin-top: 10px;"></p>
     </main>
   </div>
 
   <script>
-    // Simple prompt-based auth (not fancy, but works).
-    // You can replace this with a proper login later.
     let adminToken = localStorage.getItem("hyd_admin_token") || "";
+
+    const fmtInt = (n) => Number(n ?? 0).toLocaleString();
+    const fmtPct = (n) => `${Number(n ?? 0).toFixed(1)}%`;
+
+    function setText(id, val) {
+      const el = document.getElementById(id);
+      if (!el) return;
+      el.textContent = val;
+    }
+
+    function renderLast7(last7) {
+      const body = document.getElementById("last7Body");
+      if (!body) return;
+
+      if (!Array.isArray(last7) || last7.length === 0) {
+        body.innerHTML = `<tr><td colspan="5" class="muted">No data</td></tr>`;
+        return;
+      }
+
+      body.innerHTML = last7.map(r => {
+        const d = (r.day || r.date || "").toString().slice(0, 10);
+        return `
+          <tr>
+            <td>${d}</td>
+            <td class="num">${fmtInt(r.dau)}</td>
+            <td class="num">${fmtInt(r.rounds)}</td>
+            <td class="num">${fmtInt(r.punches)}</td>
+            <td class="num">${fmtPct(r.goal_hit_rate_pct ?? r.goalHitRatePct)}</td>
+          </tr>
+        `;
+      }).join("");
+    }
 
     async function loadStats() {
       const msg = document.getElementById("msg");
@@ -59,8 +176,27 @@
         }
 
         const data = await res.json();
-        document.getElementById("totalPunches").textContent = (data.totalPunches ?? 0).toLocaleString();
-        document.getElementById("uniqueEmailUsers").textContent = (data.uniqueEmailUsers ?? 0).toLocaleString();
+
+        // Top KPIs (these exist now)
+        setText("totalPunches", fmtInt(data.totalPunches));
+        setText("totalUsers", fmtInt(data.totalUsers));
+        setText("uniqueEmailUsers", fmtInt(data.uniqueEmailUsers));
+        setText("uniqueUsersNoEmail", fmtInt(data.uniqueUsersNoEmail));
+
+        // Email capture rate
+        const totalUsers = Number(data.totalUsers ?? 0);
+        const emailUsers = Number(data.uniqueEmailUsers ?? 0);
+        const rate = totalUsers > 0 ? (emailUsers / totalUsers) * 100 : 0;
+        setText("emailCaptureRate", fmtPct(rate));
+
+        // Optional Activity (only if your API returns these later)
+        setText("dau", fmtInt(data.dau));
+        setText("wau", fmtInt(data.wau));
+        setText("mau", fmtInt(data.mau));
+
+        // Optional last 7 days block (only if your API returns it later)
+        renderLast7(data.last7Days);
+
         msg.textContent = "Updated.";
       } catch (e) {
         msg.textContent = "Network error.";

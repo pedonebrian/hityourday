@@ -21,28 +21,31 @@ function requireAdmin(req, res, next) {
 
 router.get("/stats", requireAdmin, async (req, res) => {
   try {
-    // Assumptions (adjust if your schema differs):
-    // - rounds.punch_count exists
-    // - users.email exists (nullable)
     const totalPunchesSql = `
       SELECT COALESCE(SUM(punch_count), 0)::bigint AS total_punches
       FROM rounds
     `;
 
-    const emailUsersSql = `
-      SELECT COUNT(*)::bigint AS email_users
+    const userCountsSql = `
+      SELECT
+        COUNT(*)::bigint AS total_users,
+        COUNT(*) FILTER (WHERE email IS NOT NULL AND TRIM(email) <> '')::bigint AS email_users,
+        COUNT(*) FILTER (WHERE email IS NULL OR TRIM(email) = '')::bigint AS no_email_users
       FROM users
-      WHERE email IS NOT NULL AND TRIM(email) <> ''
     `;
 
-    const [{ rows: totalRows }, { rows: emailRows }] = await Promise.all([
+    const [{ rows: totalRows }, { rows: userRows }] = await Promise.all([
       query(totalPunchesSql),
-      query(emailUsersSql),
+      query(userCountsSql),
     ]);
+
+    const u = userRows?.[0] ?? {};
 
     res.json({
       totalPunches: Number(totalRows?.[0]?.total_punches ?? 0),
-      uniqueEmailUsers: Number(emailRows?.[0]?.email_users ?? 0),
+      totalUsers: Number(u.total_users ?? 0),
+      uniqueEmailUsers: Number(u.email_users ?? 0),
+      uniqueUsersNoEmail: Number(u.no_email_users ?? 0),
     });
   } catch (err) {
     console.error("admin stats error:", err);
