@@ -8,19 +8,16 @@
   <style>
     .grid-2 { display:grid; grid-template-columns: 1fr 1fr; gap:12px; }
     .grid-3 { display:grid; grid-template-columns: 1fr 1fr 1fr; gap:12px; }
-    @media (max-width: 640px) {
-      .grid-2, .grid-3 { grid-template-columns: 1fr; }
-    }
+    @media (max-width: 640px) { .grid-2, .grid-3 { grid-template-columns: 1fr; } }
     .kpi-label { margin-bottom: 6px; }
     .kpi-value { font-size: 40px; font-weight: 700; line-height: 1; }
     .section { margin: 18px 0 10px; }
     .section h2 { font-size: 14px; letter-spacing: .06em; text-transform: uppercase; margin: 0 0 10px; }
-    .row { display:flex; justify-content: space-between; gap: 12px; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.08); }
-    .row:last-child { border-bottom: none; }
     table { width:100%; border-collapse: collapse; }
     th, td { padding: 10px 8px; border-bottom: 1px solid rgba(255,255,255,0.08); text-align:left; }
     th { font-size: 12px; text-transform: uppercase; letter-spacing: .06em; }
     td.num { text-align:right; font-variant-numeric: tabular-nums; }
+    tr.is-today td { font-weight: 700; }
   </style>
 </head>
 <body>
@@ -65,7 +62,7 @@
         </div>
       </div>
 
-      <!-- Activity (optional, only shows if API returns it) -->
+      <!-- Activity -->
       <div class="section">
         <h2 class="muted">Activity</h2>
       </div>
@@ -85,7 +82,27 @@
         </div>
       </div>
 
-      <!-- Last 7 days table (optional) -->
+      <!-- Habit (non-consecutive active days) -->
+      <div class="section">
+        <h2 class="muted">Habit</h2>
+      </div>
+
+      <div class="grid-2" style="margin-bottom: 18px;">
+        <div class="card" style="padding:16px;">
+          <div class="muted kpi-label">Users w/ 10+ Active Days</div>
+          <div id="users10PlusDays" class="kpi-value">—</div>
+          <div class="muted" style="margin-top:10px;">
+            (Distinct days completed)
+          </div>
+        </div>
+
+        <div class="card" style="padding:16px;">
+          <div class="muted kpi-label">Max Active Days (any user)</div>
+          <div id="maxActiveDays" class="kpi-value">—</div>
+        </div>
+      </div>
+
+      <!-- Last 7 days -->
       <div class="section">
         <h2 class="muted">Last 7 days</h2>
       </div>
@@ -135,15 +152,18 @@
         return;
       }
 
+      const today = new Date().toISOString().slice(0, 10);
+
       body.innerHTML = last7.map(r => {
         const d = (r.day || r.date || "").toString().slice(0, 10);
+        const isToday = d === today ? "is-today" : "";
         return `
-          <tr>
+          <tr class="${isToday}">
             <td>${d}</td>
             <td class="num">${fmtInt(r.dau)}</td>
             <td class="num">${fmtInt(r.rounds)}</td>
             <td class="num">${fmtInt(r.punches)}</td>
-            <td class="num">${fmtPct(r.goal_hit_rate_pct ?? r.goalHitRatePct)}</td>
+            <td class="num">${fmtPct(r.goalHitRatePct)}</td>
           </tr>
         `;
       }).join("");
@@ -177,24 +197,31 @@
 
         const data = await res.json();
 
-        // Top KPIs (these exist now)
+        // Top KPIs
         setText("totalPunches", fmtInt(data.totalPunches));
         setText("totalUsers", fmtInt(data.totalUsers));
         setText("uniqueEmailUsers", fmtInt(data.uniqueEmailUsers));
         setText("uniqueUsersNoEmail", fmtInt(data.uniqueUsersNoEmail));
 
-        // Email capture rate
-        const totalUsers = Number(data.totalUsers ?? 0);
-        const emailUsers = Number(data.uniqueEmailUsers ?? 0);
-        const rate = totalUsers > 0 ? (emailUsers / totalUsers) * 100 : 0;
-        setText("emailCaptureRate", fmtPct(rate));
+        // Use backend-provided percentage if present; otherwise compute.
+        const ratePct =
+          data.emailCaptureRatePct != null
+            ? Number(data.emailCaptureRatePct)
+            : (Number(data.totalUsers ?? 0) > 0
+                ? (Number(data.uniqueEmailUsers ?? 0) / Number(data.totalUsers ?? 0)) * 100
+                : 0);
+        setText("emailCaptureRate", fmtPct(ratePct));
 
-        // Optional Activity (only if your API returns these later)
+        // Activity
         setText("dau", fmtInt(data.dau));
         setText("wau", fmtInt(data.wau));
         setText("mau", fmtInt(data.mau));
 
-        // Optional last 7 days block (only if your API returns it later)
+        // Habit
+        setText("users10PlusDays", fmtInt(data.users10PlusDays));
+        setText("maxActiveDays", fmtInt(data.maxActiveDays));
+
+        // Last 7 days
         renderLast7(data.last7Days);
 
         msg.textContent = "Updated.";
