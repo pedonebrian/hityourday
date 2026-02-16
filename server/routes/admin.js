@@ -34,7 +34,6 @@ router.get("/stats", requireAdmin, async (req, res) => {
       FROM users
     `;
 
-    // Ignore any rounds that might have a NULL user_id (schema allows it)
     const activitySql = `
       SELECT
         COUNT(DISTINCT CASE WHEN date = current_date THEN user_id END)::bigint AS dau,
@@ -72,7 +71,8 @@ router.get("/stats", requireAdmin, async (req, res) => {
     `;
 
     // "Active days" = distinct dates with >= 1 round (not necessarily consecutive)
-    const days10PlusSql = `
+    // Return 10/20/30+ cohorts (no max)
+    const activeDaysSql = `
       WITH user_days AS (
         SELECT user_id, COUNT(DISTINCT date)::int AS active_days
         FROM rounds
@@ -81,7 +81,8 @@ router.get("/stats", requireAdmin, async (req, res) => {
       )
       SELECT
         COUNT(*) FILTER (WHERE active_days >= 10)::bigint AS users_10_plus_days,
-        MAX(active_days)::int AS max_active_days
+        COUNT(*) FILTER (WHERE active_days >= 20)::bigint AS users_20_plus_days,
+        COUNT(*) FILTER (WHERE active_days >= 30)::bigint AS users_30_plus_days
       FROM user_days;
     `;
 
@@ -90,18 +91,18 @@ router.get("/stats", requireAdmin, async (req, res) => {
       { rows: userRows },
       { rows: activityRows },
       { rows: last7Rows },
-      { rows: daysRows },
+      { rows: activeDaysRows },
     ] = await Promise.all([
       query(totalPunchesSql),
       query(userCountsSql),
       query(activitySql),
       query(last7Sql),
-      query(days10PlusSql),
+      query(activeDaysSql),
     ]);
 
     const u = userRows?.[0] ?? {};
     const a = activityRows?.[0] ?? {};
-    const d = daysRows?.[0] ?? {};
+    const ad = activeDaysRows?.[0] ?? {};
 
     const totalUsers = Number(u.total_users ?? 0);
     const emailUsers = Number(u.email_users ?? 0);
@@ -112,7 +113,8 @@ router.get("/stats", requireAdmin, async (req, res) => {
       totalUsers,
       uniqueEmailUsers: emailUsers,
       uniqueUsersNoEmail: Number(u.no_email_users ?? 0),
-      emailCaptureRatePct: totalUsers > 0 ? Number(((emailUsers / totalUsers) * 100).toFixed(1)) : 0,
+      emailCaptureRatePct:
+        totalUsers > 0 ? Number(((emailUsers / totalUsers) * 100).toFixed(1)) : 0,
 
       dau: Number(a.dau ?? 0),
       wau: Number(a.wau ?? 0),
@@ -126,8 +128,9 @@ router.get("/stats", requireAdmin, async (req, res) => {
         goalHitRatePct: Number(r.goal_hit_rate_pct ?? 0),
       })),
 
-      users10PlusDays: Number(d.users_10_plus_days ?? 0),
-      maxActiveDays: Number(d.max_active_days ?? 0),
+      users10PlusDays: Number(ad.users_10_plus_days ?? 0),
+      users20PlusDays: Number(ad.users_20_plus_days ?? 0),
+      users30PlusDays: Number(ad.users_30_plus_days ?? 0),
     });
   } catch (err) {
     console.error("admin stats error:", err);

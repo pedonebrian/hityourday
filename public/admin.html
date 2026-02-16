@@ -87,20 +87,32 @@
         <h2 class="muted">Habit</h2>
       </div>
 
-      <div class="grid-2" style="margin-bottom: 18px;">
+      <div class="grid-3" style="margin-bottom: 18px;">
         <div class="card" style="padding:16px;">
-          <div class="muted kpi-label">Users w/ 10+ Active Days</div>
-          <div id="users10PlusDays" class="kpi-value">—</div>
+          <div class="muted kpi-label">10+ Active Days</div>
+          <div id="users10PlusDays" class="kpi-value" style="font-size:32px;">—</div>
           <div class="muted" style="margin-top:10px;">
-            (Distinct days completed)
+            <span id="users10PlusDaysPct">—</span> of users
           </div>
         </div>
-
+      
         <div class="card" style="padding:16px;">
-          <div class="muted kpi-label">Max Active Days (any user)</div>
-          <div id="maxActiveDays" class="kpi-value">—</div>
+          <div class="muted kpi-label">20+ Active Days</div>
+          <div id="users20PlusDays" class="kpi-value" style="font-size:32px;">—</div>
+          <div class="muted" style="margin-top:10px;">
+            <span id="users20PlusDaysPct">—</span> of users
+          </div>
+        </div>
+      
+        <div class="card" style="padding:16px;">
+          <div class="muted kpi-label">30+ Active Days</div>
+          <div id="users30PlusDays" class="kpi-value" style="font-size:32px;">—</div>
+          <div class="muted" style="margin-top:10px;">
+            <span id="users30PlusDaysPct">—</span> of users
+          </div>
         </div>
       </div>
+      
 
       <!-- Last 7 days -->
       <div class="section">
@@ -136,6 +148,7 @@
 
     const fmtInt = (n) => Number(n ?? 0).toLocaleString();
     const fmtPct = (n) => `${Number(n ?? 0).toFixed(1)}%`;
+    const pctOf = (part, total) => (total > 0 ? (part / total) * 100 : 0);
 
     function setText(id, val) {
       const el = document.getElementById(id);
@@ -203,7 +216,7 @@
         setText("uniqueEmailUsers", fmtInt(data.uniqueEmailUsers));
         setText("uniqueUsersNoEmail", fmtInt(data.uniqueUsersNoEmail));
 
-        // Use backend-provided percentage if present; otherwise compute.
+        // Email capture rate (prefer backend value)
         const ratePct =
           data.emailCaptureRatePct != null
             ? Number(data.emailCaptureRatePct)
@@ -217,9 +230,20 @@
         setText("wau", fmtInt(data.wau));
         setText("mau", fmtInt(data.mau));
 
-        // Habit
-        setText("users10PlusDays", fmtInt(data.users10PlusDays));
-        setText("maxActiveDays", fmtInt(data.maxActiveDays));
+        // Habit (10/20/30)
+        const totalUsers = Number(data.totalUsers ?? 0);
+
+        const d10 = Number(data.users10PlusDays ?? 0);
+        const d20 = Number(data.users20PlusDays ?? 0);
+        const d30 = Number(data.users30PlusDays ?? 0);
+
+        setText("users10PlusDays", fmtInt(d10));
+        setText("users20PlusDays", fmtInt(d20));
+        setText("users30PlusDays", fmtInt(d30));
+
+        setText("users10PlusDaysPct", fmtPct(pctOf(d10, totalUsers)));
+        setText("users20PlusDaysPct", fmtPct(pctOf(d20, totalUsers)));
+        setText("users30PlusDaysPct", fmtPct(pctOf(d30, totalUsers)));
 
         // Last 7 days
         renderLast7(data.last7Days);
