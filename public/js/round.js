@@ -183,7 +183,7 @@ class RoundManager {
     const base = DAILY_TARGET_PUNCHES;   // your config base (e.g., 100)
     const extraPerDay = 10;
     const streak = Number(currentStreak || 0);
-    return base + Math.max(0, (streak - 1) * extraPerDay);
+    return base + Math.max(0, (streak) * extraPerDay);
   }
   
 
