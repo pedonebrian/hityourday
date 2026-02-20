@@ -22,6 +22,74 @@
     background: radial-gradient(ellipse at top, rgba(255,0,0,0.08), transparent 50%),
                 #000;
   }
+
+  .milestone-banner {
+    width: 100%;
+    background: rgba(255, 255, 255, 0.04);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(12px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 12px 20px;
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+    color: rgba(255, 255, 255, 0.75);
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* Red left-edge accent line */
+  .milestone-banner::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    background: #FF0000;
+  }
+
+  /* Very subtle shimmer */
+  .milestone-banner::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      105deg,
+      transparent 30%,
+      rgba(255, 255, 255, 0.03) 50%,
+      transparent 70%
+    );
+    background-size: 200% 100%;
+    animation: ms-shimmer 4s ease-in-out infinite;
+    pointer-events: none;
+  }
+
+  @keyframes ms-shimmer {
+    0%   { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+  }
+
+  .milestone-banner .ms-count {
+    color: #fff;
+    font-weight: 800;
+    letter-spacing: -0.01em;
+  }
+
+  .milestone-banner .ms-dot {
+    color: #FF0000;
+    font-size: 8px;
+    opacity: 0.8;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .milestone-banner::after {
+      animation: none;
+    }
+  }
   
   /* ===================================
      ACCESSIBILITY
