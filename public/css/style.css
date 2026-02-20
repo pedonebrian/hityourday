@@ -10,12 +10,13 @@
   
   body {
     font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, system-ui, 'Segoe UI', 'Roboto', sans-serif;
-    background: #000;
+    background: radial-gradient(ellipse at top, rgba(255,0,0,0.08), transparent 50%), #000;
     color: #fff;
     min-height: 100vh;
     display: flex;
+    flex-direction: column;
     align-items: center;
-    justify-content: center;
+    justify-content: flex-start;
   }
 
   body {
