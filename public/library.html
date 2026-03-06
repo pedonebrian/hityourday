@@ -8,7 +8,7 @@
   <meta name="title" content="Boxing Change Library — Hit Your Day">
   <meta
     name="description"
-    content="Access the Boxing Change workout library, premium workouts, and training showcases."
+    content="Access the Boxing Change workout library, premium workouts, and training programs."
   />
 
   <!-- Open Graph -->
@@ -99,46 +99,42 @@
       margin-top: 18px;
     }
 
-    .showcase-grid {
+    .program-grid {
       display: grid;
-      gap: 18px;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 16px;
       margin-top: 28px;
     }
 
-    .showcase-card {
+    .program-card {
       background: rgba(255,255,255,0.04);
       border: 1px solid rgba(255,255,255,0.08);
       border-radius: 18px;
       padding: 18px;
+      display: flex;
+      flex-direction: column;
+      min-height: 100%;
     }
 
-    .showcase-card h2 {
+    .program-card h2 {
       margin: 0 0 8px 0;
       font-size: 22px;
       line-height: 1.2;
     }
 
-    .showcase-card p {
+    .program-card p {
       margin: 0 0 14px 0;
       line-height: 1.55;
       opacity: 0.92;
+      flex-grow: 1;
     }
 
-    .showcase-embed {
-      position: relative;
+    .program-card .btn-secondary {
       width: 100%;
-      padding-top: 56.25%;
-      border-radius: 14px;
-      overflow: hidden;
-      background: #111;
     }
 
-    .showcase-embed iframe {
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-      border: 0;
+    .transition-card {
+      margin-top: 22px;
     }
 
     .coaching-card {
@@ -154,11 +150,11 @@
     }
 
     @media (max-width: 768px) {
-      .showcase-card {
+      .program-card {
         padding: 16px;
       }
 
-      .showcase-card h2 {
+      .program-card h2 {
         font-size: 20px;
       }
     }
@@ -198,7 +194,7 @@
             <p class="library-subtitle">
               The Boxing Change workout archive is still available here. As things transition
               toward <strong>Hit Your Day</strong>, this page gives you direct access to the
-              training libraries, premium workouts, and longer-form sessions.
+              training programs and longer-form workout library.
             </p>
 
             <div class="library-actions">
@@ -213,31 +209,111 @@
             </div>
           </div>
 
-          <div class="showcase-grid">
-            <article class="showcase-card">
+          <div class="recover-card transition-card">
+            <h2 class="recover-title">Still want the longer-form workouts?</h2>
+            <p class="recover-subtitle">
+              Boxing Change created a full library of guided programs over the years.
+              The collections below remain available, and each one opens directly in Vimeo.
+            </p>
+          </div>
+
+          <div class="program-grid">
+            <article class="program-card">
               <h2>20-10 Program</h2>
-              <p>20 Days of 10 minute workouts that build on a boxing combination.</p>
-              <div class="showcase-embed">
-                <iframe
-                  src="https://vimeo.com/showcase/12141771/embed2"
-                  allow="autoplay; fullscreen; picture-in-picture; gyroscope; accelerometer; clipboard-write; encrypted-media; web-share"
-                  allowfullscreen
-                  title="20-10 Program"
-                ></iframe>
-            </div>
+              <p>20 days of 10-minute workouts that build on a boxing combination.</p>
+              <a
+                class="btn-secondary"
+                href="https://vimeo.com/showcase/12141771"
+                target="_blank"
+                rel="noopener"
+                role="button"
+              >
+                Open Program →
+              </a>
             </article>
 
-            <article class="showcase-card">
+            <article class="program-card">
               <h2>Inspired By</h2>
               <p>Workouts inspired by boxing legends.</p>
-              <div class="showcase-embed">
-                <iframe
-                  src="https://vimeo.com/showcase/12141816/embed2"
-                  allow="autoplay; fullscreen; picture-in-picture; gyroscope; accelerometer; clipboard-write; encrypted-media; web-share"
-                  allowfullscreen
-                  title="Inspired By"
-                ></iframe>
-              </div>
+              <a
+                class="btn-secondary"
+                href="https://vimeo.com/showcase/12141816"
+                target="_blank"
+                rel="noopener"
+                role="button"
+              >
+                Open Program →
+              </a>
+            </article>
+
+            <article class="program-card">
+              <h2>5 Day Shred</h2>
+              <p>5-minute workouts focused on building up a particular boxing combo each day of the program.</p>
+              <a
+                class="btn-secondary"
+                href="https://vimeo.com/showcase/12141824"
+                target="_blank"
+                rel="noopener"
+                role="button"
+              >
+                Open Program →
+              </a>
+            </article>
+
+            <article class="program-card">
+              <h2>10 Day Shred</h2>
+              <p>5-minute workouts focused on building up a particular boxing combo each day of the program, featuring squats during each workout.</p>
+              <a
+                class="btn-secondary"
+                href="https://vimeo.com/showcase/12141829"
+                target="_blank"
+                rel="noopener"
+                role="button"
+              >
+                Open Program →
+              </a>
+            </article>
+
+            <article class="program-card">
+              <h2>5-5 Series</h2>
+              <p>10-minute workouts split into two 5-minute complimentary segments.</p>
+              <a
+                class="btn-secondary"
+                href="https://vimeo.com/showcase/12141832"
+                target="_blank"
+                rel="noopener"
+                role="button"
+              >
+                Open Program →
+              </a>
+            </article>
+
+            <article class="program-card">
+              <h2>The Sweet 6</h2>
+              <p>Six rounds of the sweet science.</p>
+              <a
+                class="btn-secondary"
+                href="https://vimeo.com/showcase/12141836"
+                target="_blank"
+                rel="noopener"
+                role="button"
+              >
+                Open Program →
+              </a>
+            </article>
+
+            <article class="program-card">
+              <h2>Just Go Series</h2>
+              <p>Fast-paced workouts that are great for warmups or burnouts.</p>
+              <a
+                class="btn-secondary"
+                href="https://vimeo.com/showcase/12141842"
+                target="_blank"
+                rel="noopener"
+                role="button"
+              >
+                Open Program →
+              </a>
             </article>
           </div>
 
