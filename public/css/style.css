@@ -1163,7 +1163,7 @@
 /* Non-clickable gradient overlay */
 .hero-cta-overlay {
   position: absolute;
-  bottom: 24px;
+  bottom: 0;
   left: 0;
   right: 0;
   padding: 2rem 1.5rem;
@@ -1248,6 +1248,7 @@
     0 0 80px rgba(255, 0, 0, 0.25),
     0 4px 16px rgba(0, 0, 0, 0.8);
   transition: all 0.3s ease;
+  margin-bottom: 20px;
 }
 
 .btn-hero:hover {
