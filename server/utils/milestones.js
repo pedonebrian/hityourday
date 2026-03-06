@@ -38,6 +38,9 @@ export async function maybeSendStreakMilestoneEmail(userId, currentStreak) {
         `Tomorrow is day ${milestone + 1}.`,
         `Keep the chain alive.`,
         ``,
+        `If you want longer guided workouts, the Boxing Change library is here:`,
+        `https://hityourday.com/library`,
+        ``,
         `👊 — Brian Pedone`
       ].join('\n'),
     });
