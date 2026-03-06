@@ -1163,7 +1163,7 @@
 /* Non-clickable gradient overlay */
 .hero-cta-overlay {
   position: absolute;
-  bottom: 0;
+  bottom: 24px;
   left: 0;
   right: 0;
   padding: 2rem 1.5rem;
