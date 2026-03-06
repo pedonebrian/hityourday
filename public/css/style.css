@@ -1495,6 +1495,13 @@
   }
 }
 
+.site-logo {
+  width: auto;
+  max-width: 420px;   /* adjust to taste */
+  height: auto;
+  display: block;
+}
+
 .site-footer {
   text-align: center;
   font-size: 12px;
