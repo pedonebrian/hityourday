@@ -1500,6 +1500,7 @@
   max-width: 420px;   /* adjust to taste */
   height: auto;
   display: block;
+  margin: 0 auto;
 }
 
 .site-footer {
