@@ -72,8 +72,19 @@
         <div class="landing-main">
           <!-- LEFT SIDE: Title -->
           <div class="hero-header">
-            <h1 id="landing-title">HIT YOUR DAY</h1>
-            <p style="margin-top:6px; font-size:14px;">
+            <!-- Keep an accessible H1 for SEO and screen readers -->
+            <h1 id="landing-title" class="sr-only">Hit Your Day</h1>
+          
+            <!-- Visible logo -->
+            <img
+              src="/images/hit-your-day-logo.png"
+              alt="Hit Your Day"
+              class="hero-logo"
+              loading="eager"
+              decoding="async"
+            />
+          
+            <p style="margin-top:8px; font-size:14px;">
               Built by <a href="/brian.html" class="ig-link">Brian Pedone</a>
             </p>
           </div>
