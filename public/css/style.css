@@ -1475,7 +1475,7 @@
   }
 }
 
-/* Even larger screens */
+/* Even larger screens */ 
 @media (min-width: 1024px) {
   .landing-main {
     gap: 4rem;
