@@ -89,7 +89,7 @@
           <div class="hero-header">
             <h1 id="profile-title">BRIAN PEDONE</h1>
             <p class="tagline" style="margin-top:8px;">
-              Founder of Hit Your Day • Elite Boxing Coach • Builder
+              Elite Boxing Coach
             </p>
             <p class="profile-note">
               Looking for corporate training, executive sessions, or high-performance coaching.
@@ -129,13 +129,15 @@
               <div class="recover-how-it-works">
                 <p><strong>Credentials & experience:</strong></p>
                 <ul>
-                  <li><strong>USA Boxing Silver Certified Boxing Coach</strong></li>
-                  <li><strong>Boxing gym owner for 10+ years</strong></li>
-                  <li><strong>Boxing trainer for multiple Golden Gloves Champions</strong></li>
-                  <li><strong>Founder, Boxing Change</strong> (online boxing training programs)</li>
-                  <li><strong>Founder, Quiet Punch Doorway Punching Bag</strong> (<strong>40,000+ units sold</strong>)</li>
-                  <li><strong>Former corporate boxing trainer</strong> for <strong>Next Jump</strong>, NYC</li>
-                  <li><strong>Former professional boxing coach</strong> for MMA rising star <strong>Chris Birchler</strong></li>
+                  <li><strong>USA Boxing Silver Certified</strong> Boxing Coach</li>
+                  <li>Amateur boxer since age 13 &mdash; <strong>20+ years</strong> as trainer</li>
+                  <li><strong>Boxing gym owner</strong> for 10+ years</li>
+                  <li>Trainer of <strong>multiple Golden Gloves Champions</strong></li>
+                  <li>Founder, Boxing Change</strong> &mdash; online boxing training programs</li>
+                  <li><strong>Founder, Quiet Punch</strong> Doorway Punching Bag &mdash; <strong>40,000+ units sold</strong></li>
+                  <li>Volunteer boxing trainer at <strong>Covenant House</strong>, NYC</li>
+                  <li>Corporate boxing trainer for <strong>Next Jump</strong>, NYC</li>
+                  <li>Professional boxing coach for MMA rising star <strong>Chris Birchler</strong></li>
                 </ul>
               </div>
 
@@ -179,21 +181,51 @@
               <p class="recover-subtitle">
                 Corporate training • Executive sessions • Private coaching • Partnerships
               </p>
-
-              <div style="display:flex; flex-wrap:wrap; gap:10px;">
-                <a class="btn-primary" href="mailto:hello@hityourday.com?subject=Corporate%20Boxing%20Training%20Inquiry" role="button" style="text-decoration:none;">
-                  Email to Inquire
-                </a>
-                <a class="btn-secondary" href="/library.html" role="button" style="text-decoration:none;">
-                  Workout Library
-                </a>
-                <a class="btn-secondary" href="https://instagram.com/hityourday" target="_blank" rel="noopener" role="button" style="text-decoration:none;">
-                  Instagram
-                </a>
-                <a class="btn-secondary" href="/" role="button" style="text-decoration:none;">
-                  Back to App
-                </a>
-              </div>
+            
+              <form id="contactForm" style="display:grid; gap:10px; margin-top:12px;">
+                <input
+                  type="text"
+                  id="cname"
+                  name="cname"
+                  placeholder="Your name"
+                  required
+                  minlength="5"
+                  style="padding:12px; border-radius:10px; border:1px solid #ccc; width:100%;"
+                />
+            
+                <input
+                  type="email"
+                  id="cemail"
+                  name="cemail"
+                  placeholder="Your email"
+                  required
+                  style="padding:12px; border-radius:10px; border:1px solid #ccc; width:100%;"
+                />
+            
+                <textarea
+                  id="cmessage"
+                  name="cmessage"
+                  placeholder="Tell me a little about what you're looking for"
+                  required
+                  minlength="5"
+                  rows="5"
+                  style="padding:12px; border-radius:10px; border:1px solid #ccc; width:100%; resize:vertical;"
+                ></textarea>
+            
+                <input type="hidden" id="cusername" name="cusername" value="hityourday" />
+            
+                <div style="display:flex; flex-wrap:wrap; gap:10px;">
+                  <button type="submit" class="btn-primary">
+                    Send Inquiry
+                  </button>
+            
+                  <a class="btn-secondary" href="/library.html" role="button" style="text-decoration:none;">
+                    View My Workout Library
+                  </a>
+                </div>
+            
+                <p id="contactFormStatus" style="margin:6px 0 0; font-size:14px;" aria-live="polite"></p>
+              </form>
             </div>
           </div>
         </div>
@@ -249,5 +281,49 @@
       fbq("trackCustom", "FounderProfileView", { page: "brian" });
     }
   </script>
+
+<script>
+  const contactForm = document.getElementById("contactForm");
+  const contactFormStatus = document.getElementById("contactFormStatus");
+
+  if (contactForm) {
+    contactForm.addEventListener("submit", async function (e) {
+      e.preventDefault();
+
+      contactFormStatus.textContent = "Sending...";
+      contactFormStatus.style.opacity = "0.8";
+
+      const formData = new FormData(contactForm);
+
+      try {
+        const response = await fetch("https://reffr.me/api.php", {
+          method: "POST",
+          body: formData
+        });
+
+        const data = await response.json();
+
+        if (data.status === "success") {
+          contactFormStatus.textContent = data.message || "Your message has been sent.";
+          contactFormStatus.style.opacity = "1";
+          contactForm.reset();
+
+          // Put cusername back after reset
+          document.getElementById("cusername").value = "hityourday";
+
+          if (typeof window.fbq === "function") {
+            fbq("trackCustom", "CorporateInquirySubmitted", { page: "brian" });
+          }
+        } else {
+          contactFormStatus.textContent = data.message || "Something went wrong.";
+          contactFormStatus.style.opacity = "1";
+        }
+      } catch (err) {
+        contactFormStatus.textContent = "Unable to send right now. Please try again.";
+        contactFormStatus.style.opacity = "1";
+      }
+    });
+  }
+</script>
 </body>
 </html>
